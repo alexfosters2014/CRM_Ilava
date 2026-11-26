@@ -17,7 +17,7 @@ let cacheClave: Buffer | null = null;
 
 function claveMaestra(): Buffer {
 	// Se lee de process.env y no de `$app/env/private` para que la misma clave
-	// funcione en desarrollo (lanzador) y en el contenedor (variables inyectadas).
+	// funcione en desarrollo local y en el contenedor (variables inyectadas).
 	const secreto = process.env.CORREO_CLAVE?.trim();
 	if (!secreto || secreto.length < 16) {
 		throw new Error(

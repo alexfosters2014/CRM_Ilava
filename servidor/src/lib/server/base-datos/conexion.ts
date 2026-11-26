@@ -1,11 +1,26 @@
+import { building } from '$app/environment';
 import { DATABASE_URL } from '$app/env/private';
 import { Pool } from 'pg';
 import { drizzle, type NodePgDatabase } from 'drizzle-orm/node-postgres';
 import * as esquemas from './esquemas/index.ts';
 
+/**
+ * Cadena de conexion. En runtime es obligatoria: el contenedor la inyecta por
+ * entorno y no hay credenciales por defecto en el codigo. Durante el build solo
+ * se analizan las rutas y no se abre ninguna conexion, asi que se usa un
+ * placeholder inerte.
+ */
+function cadenaConexion(): string {
+	if (DATABASE_URL) return DATABASE_URL;
+	if (building) return 'postgres://build:build@localhost:5432/build';
+	throw new Error(
+		'Falta DATABASE_URL. El contenedor la define en infra/compose-backend.yml; en desarrollo local va en servidor/.env.'
+	);
+}
+
 // Pool de conexiones a PostgreSQL (reutilizado por todos los endpoints)
 export const pool = new Pool({
-	connectionString: DATABASE_URL ?? 'postgres://crm:crm@localhost:5432/crmdb',
+	connectionString: cadenaConexion(),
 	max: 10,
 	idleTimeoutMillis: 30000
 });

@@ -139,6 +139,17 @@ try {
         Aviso 'Sin SMTP en servidor/.env: el OTP de login se imprime en docker logs crm-backend.'
     }
 
+    # Docker fija las variables al CREAR el contenedor: si editas servidor/.env
+    # y solo haces `up`, el contenedor sigue con los valores viejos. Se compara
+    # el hash del archivo para forzar la recreacion cuando cambio algo.
+    $hashEnv = (Get-FileHash -Path $archivoEnv -Algorithm SHA256).Hash
+    $archivoHash = Join-Path $raiz 'infra\.env.hash'
+    $hashPrevio = if (Test-Path $archivoHash) { (Get-Content $archivoHash -Raw).Trim() } else { '' }
+    $recrearPorEnv = $hashPrevio -ne $hashEnv
+    if ($recrearPorEnv -and $hashPrevio) {
+        Aviso 'servidor/.env cambio: se recrea el contenedor para inyectar las variables nuevas.'
+    }
+
     if ($Build) {
         Paso 'Reconstruyendo imagenes sin cache'
         & docker compose --env-file $archivoEnv -f $composeBackend build --no-cache
@@ -149,8 +160,12 @@ try {
     }
 
     Paso 'Levantando el backend (API + PostgreSQL en un contenedor)'
-    & docker compose --env-file $archivoEnv -f $composeBackend up -d --build
+    $argsBackend = @('compose', '--env-file', $archivoEnv, '-f', $composeBackend, 'up', '-d', '--build')
+    if ($recrearPorEnv) { $argsBackend += '--force-recreate' }
+    & docker @argsBackend
     if ($LASTEXITCODE -ne 0) { throw 'Fallo el arranque del backend.' }
+    # Solo se registra el hash si el arranque salio bien.
+    Set-Content -Path $archivoHash -Value $hashEnv -NoNewline
     Ok "Contenedor $contBackend creado"
 
     Paso 'Esperando a la API y a PostgreSQL'

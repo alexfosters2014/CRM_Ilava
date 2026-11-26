@@ -35,6 +35,24 @@ Todas las claves y accesos entran por entorno; **ninguna vive en el repositorio*
 | `servidor/.env` | No (`.gitignore` y `.dockerignore`) | Credenciales reales: `BETTER_AUTH_SECRET`, `SMTP_*`, `CORREO_CLAVE`, `GMAIL_*` |
 | `servidor/.env.example` | Sí | Plantilla con todas las variables y valores de relleno |
 
+Cada contenedor recibe **solo lo que necesita**:
+
+| Contenedor | Variables | Cómo llegan |
+|---|---|---|
+| `crm-backend` | `BETTER_AUTH_*`, `SMTP_*`, `CORREO_CLAVE`, `GMAIL_*` | `env_file: servidor/.env` |
+| `crm-backend` | `DATABASE_URL`, `POSTGRES_*`, `PORT`, `HOST`, `CHROME_PATH`, `PROTOCOL_HEADER`, `HOST_HEADER`, `TRUSTED_ORIGINS`, `WHATSAPP_AUTH_DIR` | `environment:` del compose |
+| `crm-frontend` | `API_URL`, `PORT`, `HOST` | `environment:` del compose (**sin credenciales**) |
+
+Cualquier variable nueva que agregues a `servidor/.env` llega al backend sin tocar
+el compose, porque `env_file` pasa el archivo completo. Las que dependen del
+contenedor (por ejemplo `DATABASE_URL`, que adentro es `localhost:5432`) las fija
+el compose y tienen prioridad sobre el archivo.
+
+> Docker fija las variables al **crear** el contenedor: editar `servidor/.env` y
+> volver a levantar no alcanza. `iniciar.bat` compara el hash del archivo
+> (`infra/.env.hash`) y fuerza la recreación cuando cambió, así una credencial
+> rotada llega de verdad al contenedor.
+
 Los valores propios del contenedor (`DATABASE_URL` en `localhost:5432`, `PORT`,
 `WHATSAPP_AUTH_DIR`) los fija `infra/compose-backend.yml`; el resto se hereda de
 `servidor/.env` con `env_file`. `BETTER_AUTH_SECRET` es obligatorio: si falta, el

@@ -31,7 +31,6 @@ coverage/
 # Logs
 # ============================================================================
 *.log
-.lanzador/
 
 # ============================================================================
 # Sistema operativo y editores
@@ -48,3 +47,7 @@ desktop.ini
 # ============================================================================
 *.timestamp-*
 *.zip
+
+# Huella de servidor/.env que usa el lanzador para decidir si recrear el
+# contenedor. Se genera localmente, no se versiona.
+infra/.env.hash
