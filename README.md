@@ -1,56 +1,66 @@
-# CRM — Frontend + Web API + PostgreSQL (SvelteKit en Podman)
+# CRM — Frontend + Web API + PostgreSQL (SvelteKit en Docker)
 
-Arquitectura de dos proyectos **SvelteKit** desplegados en **dos pods de Podman**,
-uno por proyecto. El backend lleva la Web API y PostgreSQL corriendo **en el mismo
-contenedor**.
+Arquitectura de dos proyectos **SvelteKit** desplegados en **dos contenedores
+Docker**, cada uno en su propio proyecto de Compose sobre la red `crm-net`. El
+backend lleva la Web API y PostgreSQL corriendo **en el mismo contenedor**.
 
-| Pod | Contenido | Puerto | Descripción |
+| Contenedor | Contenido | Puerto | Descripción |
 |---|---|---|---|
 | `crm-frontend` | Frontend SvelteKit (`cliente/`) | `4173` | Panel CRM. Llama a `/api/*`, que su propio servidor reenvía a la API |
 | `crm-backend` | Web API SvelteKit (`servidor/`) + **PostgreSQL** | `8080` → `3000`, `5433` → `5432` | API REST + OpenAPI + base de datos, todo en un contenedor |
 
-Cada pod lleva un único contenedor de aplicación (`crm-frontend-app` y
-`crm-backend-app`). El sufijo `-app` evita que el nombre del contenedor coincida
-con el del pod, lo que rompe `podman inspect` (devuelve un array si hay dos
-objetos con el mismo nombre).
+Cada contenedor es un proyecto de compose independiente (`crm-backend` y
+`crm-frontend`) y comparten la red externa `crm-net`: bajar uno no corta al otro.
+`servidor/Dockerfile` (API sola, sin PostgreSQL) queda como alternativa para
+desplegar contra una base externa; el arranque por defecto no lo usa.
 
 ## Entornos: desarrollo vs producción
 
-Hay dos caminos y **no son intercambiables**:
-
 | Entorno | Comando | Qué ejecuta | Puertos | Config |
 |---|---|---|---|---|
-| **Desarrollo** | `lanzador-directo.bat` | `vite dev` en ambos proyectos; PostgreSQL nativo de Windows | 5173 / 8080 / 5432 | `lanzador-directo.env` |
-| **Producción** | `iniciar.bat` | `npm run build` + `node build` (adapter-node), PostgreSQL dentro del pod | 4173 / 8080→3000 / 5433 | `servidor/.env` (solo SMTP y secreto) |
+| **Desarrollo con HMR** | `lanzador-directo.bat` | `vite dev` en ambos proyectos; PostgreSQL nativo de Windows | 5173 / 8080 / 5432 | `lanzador-directo.env` |
+| **Desarrollo y producción con contenedores** | `iniciar.bat` | `npm run build` + `node build` (adapter-node), PostgreSQL dentro del contenedor | 4173 / 8080 → 3000 / 5433 | `servidor/.env` |
 
-El Lanzador Directo es **solo para desarrollo**: no compila, corre con HMR y usa
-una sola instancia. Para usuarios reales, siempre `iniciar.bat`.
+El Lanzador Directo no compila y sirve para iterar con HMR. Los contenedores son el
+camino que refleja producción: misma imagen, mismas variables de entorno.
+
+### Variables de entorno
+
+Todas las claves y accesos entran por entorno; **ninguna vive en el repositorio**:
+
+| Archivo | Se versiona | Para qué |
+|---|---|---|
+| `servidor/.env` | No (`.gitignore` y `.dockerignore`) | Credenciales reales: `BETTER_AUTH_SECRET`, `SMTP_*`, `CORREO_CLAVE`, `GMAIL_*` |
+| `servidor/.env.example` | Sí | Plantilla con todas las variables y valores de relleno |
+| `lanzador-directo.env` | No | Entorno del modo HMR (incluye la clave del PostgreSQL nativo) |
+
+Los valores propios del contenedor (`DATABASE_URL` en `localhost:5432`, `PORT`,
+`WHATSAPP_AUTH_DIR`) los fija `infra/compose-backend.yml`; el resto se hereda de
+`servidor/.env` con `env_file`. `BETTER_AUTH_SECRET` es obligatorio: si falta, el
+compose no arranca, `entrada.sh` aborta y el lanzador corta con un mensaje claro.
 
 Checklist de producción:
 
-1. `BETTER_AUTH_SECRET` real en `servidor/.env`; el script lo inyecta en el
-   contenedor. El placeholder de `Dockerfile.db` es público y no debe usarse.
-2. Credenciales de PostgreSQL productivas (hoy el pod arranca con `crm/crm`).
+1. `BETTER_AUTH_SECRET` real y de 32+ caracteres en `servidor/.env`.
+2. `POSTGRES_PASSWORD` propio: el default es `crm` (ver `infra/compose-backend.yml`).
+   Si la clave no es segura para una URL, definí `DATABASE_URL` explícita.
 3. `BETTER_AUTH_URL` y `TRUSTED_ORIGINS` con el dominio real del frontend.
-4. `lanzador-directo.env` **no** se copia a las imágenes (los contextos de build
-   son `servidor/` y `cliente/`), pero contiene secretos en texto plano: no debe
-   salir del equipo de desarrollo.
+4. Rotar el app password SMTP y el client secret de Gmail antes de exponer el CRM.
 
-## Arranque rápido (Windows) — producción
+## Arranque rápido (Windows)
 
-Doble clic en **`iniciar.bat`**. El script:
+1. Docker Desktop abierto (motor Linux, backend WSL 2).
+2. Doble clic en **`iniciar.bat`**. El script:
+   - Comprueba que Docker responda y crea la red `crm-net` si falta.
+   - Valida `servidor/.env` (corta si falta `BETTER_AUTH_SECRET`).
+   - Construye y levanta `crm-backend` (API + PostgreSQL) y espera `/api/salud`.
+   - Construye y levanta `crm-frontend` y espera el puerto `4173`.
+   - Abre el frontend y la documentación OpenAPI.
+   - Queda en primer plano: **Ctrl+C o cerrar la consola detiene los contenedores
+     (no los elimina ni borra los volúmenes)**.
 
-1. Arranca la máquina de Podman si no está activa.
-2. Calcula una **huella del código** y la compara con la etiqueta `crm.huella`
-   de cada imagen. Reconstruye **solo** la que cambió.
-3. Si no cambió nada y los contenedores existen: **los inicia** (`podman pod start`)
-   sin recrear nada.
-4. Si cambió el código o falta el despliegue: elimina y recrea solo los pods
-   afectados (los datos del volumen `crm-pgdata` se conservan).
-5. Espera a que la API y el frontend respondan.
-6. Abre la web del frontend en el navegador (y la pestaña de OpenAPI).
-7. Se queda en primer plano. **Ctrl+C o cerrar la consola detiene los
-   contenedores (no los elimina).**
+Docker reutiliza las capas de build: solo recompila lo que cambió. `-Build` fuerza
+una reconstrucción completa sin caché.
 
 Opciones (desde una terminal):
 
@@ -58,39 +68,35 @@ Opciones (desde una terminal):
 iniciar.bat -SinNavegador  :: no abre el navegador
 iniciar.bat -SinDocs       :: no abre la pestaña de OpenAPI (solo el frontend)
 iniciar.bat -SinWatchdog   :: no lanza el watchdog (al cerrar la consola quedan arriba)
+iniciar.bat -Build         :: reconstruye todo sin cache
 ```
 
-> `-Build` se sigue aceptando por compatibilidad, pero ya no hace falta: la
-> reconstrucción se decide comparando la huella del código con la de la imagen.
-
 Al arrancar se abren **dos pestañas**: la web del frontend (`:4173`) y la
-documentación OpenAPI de la API (`:8080/api/docs`), para verlas juntas. El
-navegador ya **no** interviene en el ciclo de vida: podés cerrar la pestaña o
-minimizarla sin que se detenga nada.
+documentación OpenAPI de la API (`:8080/api/docs`). El navegador no interviene en
+el ciclo de vida: podés cerrar la pestaña sin que se detenga nada.
 
 ### Cómo decide parar el lanzador
 
 El script se queda en primer plano esperando. Hay dos caminos de parada:
 
-- **Ctrl+C**: corta el bucle, corre el `finally` y ejecuta `podman pod stop`.
+- **Ctrl+C**: corta el bucle, corre el `finally` y ejecuta `docker stop`.
 - **Cerrar la consola (X)**: Windows mata el proceso sin `finally`, así que un
-  **watchdog externo** (proceso oculto, lanzado en su propia consola) vigila el
-  PID del lanzador cada 2 s y, cuando deja de existir, detiene los pods. Cubre
+  **watchdog externo** (proceso oculto, en su propia consola) vigila el PID del
+  lanzador cada 2 s y, cuando deja de existir, detiene los contenedores. Cubre
   también `taskkill`, un cuelgue o un crash.
 
-El watchdog sobrevive al cierre de la ventana porque no comparte consola. En el
-cierre normal su parada es un no-op (los pods ya están detenidos) y termina solo.
-
+En el cierre normal el watchdog no encuentra nada que detener y termina solo.
 Además, el bucle corta si el contenedor del frontend se cae.
 
 Para parar a mano cuando la consola ya no está abierta:
 
 ```powershell
-podman pod stop crm-backend crm-frontend
+docker stop crm-frontend crm-backend
 ```
 
-Los contenedores quedan detenidos y el próximo `iniciar.bat` los reutiliza.
-Solo se eliminan cuando hay código nuevo que exige recrearlos.
+Los contenedores quedan detenidos y el próximo `iniciar.bat` los reutiliza. Los
+volúmenes `crm-pgdata` y `crm-wa-auth` conservan los datos entre reinicios y
+recreaciones.
 
 ## URLs de prueba
 
@@ -102,7 +108,7 @@ Solo se eliminan cuando hay código nuevo que exige recrearlos.
 | <http://127.0.0.1:8080/api/openapi.json> | Especificación OpenAPI 3.0 en JSON |
 | `localhost:5433` | PostgreSQL (`db=crmdb`, `user=crm`, `pass=crm`) |
 
-> Nota: usar `127.0.0.1` en lugar de `localhost` evita resoluciones IPv6 que Podman no reenvía.
+> Nota: usar `127.0.0.1` en lugar de `localhost` evita resoluciones IPv6 que el contenedor no reenvía al host.
 
 ## Endpoints de la API
 
@@ -793,7 +799,7 @@ Rutas (`cliente/src/routes/`):
 ### Lanzador Directo
 
 Doble clic en `lanzador-directo.bat` (o `scripts\lanzador-directo.ps1`). Levanta API y
-frontend como procesos Node, sin Podman, contra el PostgreSQL nativo de Windows.
+frontend como procesos Node, sin contenedores, contra el PostgreSQL nativo de Windows.
 
 Toda la configuración vive en un único archivo en la raíz: **`lanzador-directo.env`**:
 
@@ -827,7 +833,7 @@ Flags: `-SinNavegador`, `-SinDocs`, `-Instalar`.
 ### Arranque manual
 
 ```bash
-podman run -d --name crm-postgres-dev -e POSTGRES_USER=crm -e POSTGRES_PASSWORD=crm \
+docker run -d --name crm-postgres-dev -e POSTGRES_USER=crm -e POSTGRES_PASSWORD=crm \
   -e POSTGRES_DB=crmdb -p 5432:5432 postgres:17-alpine
 
 cd servidor && npm run dev
@@ -846,8 +852,10 @@ cd cliente && npm run dev
   2. Los módulos `$env/*` fueron deprecados. Las variables privadas se declaran en
      `servidor/src/env.ts` con `defineEnvVars` y se importan desde
      `$app/env/private`. Por defecto son **dinámicas** (se leen en runtime, no en el
-     build), así Podman sigue inyectando `DATABASE_URL` al arrancar. Una variable es
+     build), así Docker sigue inyectando `DATABASE_URL` al arrancar. Una variable es
      opcional si su `schema` puede devolver `undefined`.
+   3. Los tipos de hooks (`Handle`, etc.) se importan desde `@sveltejs/kit/hooks`,
+      no desde `@sveltejs/kit`.
   3. Los tipos de hooks (`Handle`, etc.) se importan desde `@sveltejs/kit/hooks`,
      no desde `@sveltejs/kit`.
 - **Contenedor del backend con dos procesos**: `servidor/Dockerfile.db` parte de
@@ -863,8 +871,11 @@ cd cliente && npm run dev
 - **CSRF de SvelteKit**: las peticiones con método no-GET y content-type de formulario
   (`text/plain`, `x-www-form-urlencoded`) se bloquean si el `Origin` no coincide con el
   origin que ve el servidor. Al probar a mano con `curl`/Postman, usar `Content-Type: application/json`.
-- **Podman**: `podman-compose` 1.6 no crea pods por sí mismo y se colgaba en los healthchecks
-  de `depends_on`; los scripts usan `podman pod create` + `podman run --pod`.
-- **Naming**: usar nombres de contenedor distintos a los de los pods. Si ambos coinciden,
-  `podman inspect` devuelve dos objetos y el template `{{.State.Running}}` falla con
-  `can't evaluate field State in type interface {}`.
+- **Docker Compose, dos proyectos**: `crm-backend` y `crm-frontend` viven en archivos
+  separados para tener ciclos de vida independientes. Comparten la red **externa**
+  `crm-net` (la crea `scripts/levantar.ps1`), así bajar uno no corta al otro. Sin
+  `name:` propio, ambos archivos definirían el mismo proyecto (los dos están en
+  `infra/`) y Compose trataría un servicio como huérfano del otro.
+- **Placeholder de build**: `BETTER_AUTH_SECRET` se exige al compilar porque Better
+  Auth valida el secreto al analizar las rutas. Las etapas de build definen un valor
+  público y descartable; el real entra en runtime y `entrada.sh` aborta si falta.
