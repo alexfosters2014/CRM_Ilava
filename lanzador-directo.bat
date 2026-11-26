@@ -10,7 +10,7 @@ echo  - API y frontend corren como procesos Node (vite dev).
 echo  - PostgreSQL debe estar iniciado en Windows.
 echo  - Configuracion unica: lanzador-directo.env
 echo.
-echo  NO usar para produccion: para produccion, iniciar.bat (Podman).
+echo  NO usar para produccion: para produccion, iniciar.bat (Docker).
 echo.
 powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0scripts\lanzador-directo.ps1" %*
 echo.

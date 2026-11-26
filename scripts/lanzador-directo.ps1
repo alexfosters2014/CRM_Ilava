@@ -1,18 +1,18 @@
 <#
 .SYNOPSIS
-    Lanzador Directo: API + frontend del CRM sin contenedores Podman.
+    Lanzador Directo: API + frontend del CRM sin contenedores.
     SOLO DESARROLLO: usa los servidores de Vite, no artefactos compilados.
 
 .DESCRIPTION
-    Entorno de DESARROLLO. Para produccion usar iniciar.bat (Podman), que
-    compila con `npm run build` y sirve con adapter-node.
+    Entorno de DESARROLLO. Para desarrollo y produccion con contenedores usar
+    iniciar.bat (Docker), que compila con `npm run build` y sirve con adapter-node.
 
     Levanta los dos proyectos como procesos Node locales:
 
         API       -> servidor  (SvelteKit)  http://127.0.0.1:8080
         Frontend  -> cliente   (SvelteKit)  http://127.0.0.1:5173
 
-    No construye imagenes, no crea pods y no toca Podman. Usa el PostgreSQL
+    No construye imagenes ni crea contenedores. Usa el PostgreSQL
     nativo que ya este corriendo en el host.
 
     Toda la configuracion (credenciales de PostgreSQL, puertos, Better Auth y
@@ -234,7 +234,7 @@ try {
         Aviso 'Opciones:'
         Aviso '  1) Iniciar el servicio local de PostgreSQL en ese puerto.'
         Aviso '  2) Ajustar DATABASE_URL en lanzador-directo.env al host/puerto donde corre.'
-        Aviso '  3) Si la base vive en Podman, este lanzador no aplica: usa iniciar.bat.'
+        Aviso '  3) Si la base vive en un contenedor, este lanzador no aplica: usa iniciar.bat.'
         throw "PostgreSQL no disponible en ${hostDb}:${puertoDb}"
     }
 
@@ -314,7 +314,7 @@ try {
     Ok "Frontend respondiendo en http://127.0.0.1:$PuertoWeb"
 
     Write-Host "`n==============================================" -ForegroundColor Green
-    Write-Host " CRM ARRANCADO - DESARROLLO (Vite, sin Podman)" -ForegroundColor Green
+    Write-Host " CRM ARRANCADO - DESARROLLO (Vite, sin contenedores)" -ForegroundColor Green
     Write-Host " Frontend  : http://localhost:$PuertoWeb" -ForegroundColor White
     Write-Host " API       : http://localhost:$PuertoApi/api/salud" -ForegroundColor White
     Write-Host " OpenAPI   : http://localhost:$PuertoApi/api/docs" -ForegroundColor White

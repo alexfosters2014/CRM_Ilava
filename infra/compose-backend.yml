@@ -1,72 +1,83 @@
-# Pod de Podman "crm-backend": API + PostgreSQL comparten la red del pod
-# (dentro del pod, la API se conecta a PostgreSQL vía localhost:5432)
-services:
-  postgres:
-    image: docker.io/library/postgres:17-alpine
-    pod: crm-backend
-    container_name: crm-postgres
-    environment:
-      POSTGRES_USER: crm
-      POSTGRES_PASSWORD: crm
-      POSTGRES_DB: crmdb
-    volumes:
-      - crm-pgdata:/var/lib/postgresql/data
-      # El esquema y los datos iniciales los aplica la API al arrancar
-      # (hook `init` de SvelteKit): migraciones y seed de Drizzle.
-    # Expuesta solo para desarrollo local desde el anfitrión (cliente en :5433)
-    ports:
-      - "5433:5432"
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U crm -d crmdb"]
-      interval: 5s
-      timeout: 3s
-      retries: 10
+# Backend: Web API + PostgreSQL + Chromium en UN contenedor (imagen
+# servidor/Dockerfile.db). Es la misma arquitectura que veniamos usando: dentro
+# del contenedor la API habla con PostgreSQL por localhost.
+#
+# Proyecto propio (`crm-backend`) para que no comparta ciclo de vida con el
+# frontend, sobre una red externa compartida.
+#
+# Requisito previo (lo hace scripts/levantar.ps1):
+#   docker network create crm-net
+#
+# Uso:
+#   docker compose --env-file ../servidor/.env -f compose-backend.yml up -d --build
+#
+# Requisito: BETTER_AUTH_SECRET definido en el entorno o en el --env-file.
+name: crm-backend
 
-  api:
+services:
+  backend:
     build:
       context: ../servidor
-    image: crm-api
-    pod: crm-backend
-    container_name: crm-api
-    depends_on:
-      postgres:
-        condition: service_healthy
-    # Credenciales SMTP del host (servidor/.env, en .dockerignore). Las claves
-    # declaradas abajo en `environment` tienen prioridad sobre este env_file,
-    # asi que DATABASE_URL/BETTER_AUTH_* mantienen los valores del contenedor.
+      dockerfile: Dockerfile.db
+    image: crm-backend
+    container_name: crm-backend
+    # Credenciales SMTP, Gmail, CORREO_CLAVE y BETTER_AUTH_SECRET del host.
+    # servidor/.env esta en .dockerignore: no viaja dentro de la imagen.
     env_file:
       - ../servidor/.env
     environment:
-      # Dentro del pod, la BD está en localhost (misma red)
-      DATABASE_URL: postgres://crm:crm@localhost:5432/crmdb
+      # --- PostgreSQL interno (mismo contenedor) ---
+      POSTGRES_USER: ${POSTGRES_USER:-crm}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-crm}
+      POSTGRES_DB: ${POSTGRES_DB:-crmdb}
+      # La API se conecta por localhost: misma maquina. Si cambias
+      # POSTGRES_PASSWORD, usa una clave segura para URL o define DATABASE_URL
+      # explicitamente.
+      DATABASE_URL: postgres://${POSTGRES_USER:-crm}:${POSTGRES_PASSWORD:-crm}@localhost:5432/${POSTGRES_DB:-crmdb}
+
+      # --- API ---
       PORT: "3000"
       HOST: "0.0.0.0"
-      # El proxy del frontend reenvía x-forwarded-proto y x-forwarded-host.
-      # adapter-node asume https/host propio por defecto; sin leerlas, Better
-      # Auth no enruta /api/auth/* y rechaza el Origin del navegador (CSRF).
+      CHROME_PATH: /usr/bin/chromium
+      # adapter-node lee estas cabeceras del proxy del frontend para
+      # reconstruir el origin publico (sin ellas Better Auth rechaza el Origin).
       PROTOCOL_HEADER: x-forwarded-proto
       HOST_HEADER: x-forwarded-host
-      # Better Auth: secreto para firmar cookies de sesion. Obligatorio: el
-      # compose falla si no esta definido en el entorno (nada de defaults
-      # publicos dentro del repositorio).
-      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?define BETTER_AUTH_SECRET en el entorno}
-      BETTER_AUTH_URL: http://127.0.0.1:4173
-      # Orígenes del frontend confiables para Better Auth (CSRF).
-      TRUSTED_ORIGINS: http://localhost:4173,http://127.0.0.1:4173
-      # Credenciales de la sesión de WhatsApp (Baileys). Sin volumen se pierden
-      # en cada recreación del contenedor y hay que escanear el QR de nuevo.
+
+      # --- Better Auth (obligatorio, sin default publico) ---
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?define BETTER_AUTH_SECRET en el entorno o en el --env-file}
+      BETTER_AUTH_URL: ${BETTER_AUTH_URL:-http://127.0.0.1:4173}
+      TRUSTED_ORIGINS: ${TRUSTED_ORIGINS:-http://localhost:4173,http://127.0.0.1:4173}
+
+      # --- WhatsApp (Baileys) ---
       WHATSAPP_AUTH_DIR: /app/.whatsapp-auth
     volumes:
+      # Datos de PostgreSQL: sobreviven a recrear el contenedor.
+      - crm-pgdata:/var/lib/postgresql/data
+      # Credenciales de la sesion de WhatsApp: equivalen a la cuenta.
       - crm-wa-auth:/app/.whatsapp-auth
+    networks:
+      - crm-net
     ports:
-      - "8080:3000"
+      - "8080:3000"   # API + OpenAPI
+      - "5433:5432"   # PostgreSQL, solo para inspeccion desde el anfitrion
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:3000/api/salud || exit 1"]
+      # Se usa 127.0.0.1 y no localhost: dentro del contenedor localhost
+      # resuelve primero a ::1 y la API escucha en IPv4.
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:3000/api/salud || exit 1"]
       interval: 10s
       timeout: 5s
-      retries: 10
-      start_period: 15s
+      retries: 12
+      start_period: 30s
+
+networks:
+  # La crea scripts/levantar.ps1 (o `docker network create crm-net`).
+  crm-net:
+    external: true
 
 volumes:
+  # Nombres fijos: no dependen del nombre del proyecto de compose.
   crm-pgdata:
+    name: crm-pgdata
   crm-wa-auth:
+    name: crm-wa-auth

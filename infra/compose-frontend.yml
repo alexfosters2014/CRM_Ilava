@@ -1,23 +1,36 @@
-# Pod de Podman "crm-frontend": el frontend (cliente) en su propio pod,
-# separado del pod de API + base de datos.
+# Frontend (cliente) en su propio contenedor, proyecto de compose propio sobre
+# la red externa compartida con el backend.
+#
+# Requisito previo (lo hace scripts/levantar.ps1):
+#   docker network create crm-net
+#
+# Uso (el backend tiene que estar arriba para que `backend` resuelva):
+#   docker compose -f compose-frontend.yml up -d --build
+name: crm-frontend
+
 services:
   frontend:
     build:
       context: ../cliente
     image: crm-frontend
-    pod: crm-frontend
     container_name: crm-frontend
     environment:
-      # El proxy /api del frontend reenvía las peticiones a la API publicada
-      # por el pod backend en el anfitrión (puerto 8080)
-      API_URL: http://host.containers.internal:8080
+      # Por la red compartida, la API se resuelve por nombre de servicio.
+      # `host.containers.internal` es de Podman y Docker no lo resuelve.
+      API_URL: http://backend:3000
       PORT: "4173"
       HOST: "0.0.0.0"
+    networks:
+      - crm-net
     ports:
       - "4173:4173"
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:4173/ || exit 1"]
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:4173/ || exit 1"]
       interval: 10s
       timeout: 5s
-      retries: 10
-      start_period: 15s
+      retries: 12
+      start_period: 20s
+
+networks:
+  crm-net:
+    external: true

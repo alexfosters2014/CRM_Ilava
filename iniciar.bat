@@ -1,18 +1,17 @@
 @echo off
-title CRM - PRODUCCION (Podman)
+title CRM - CONTENEDORES (Docker)
 cd /d "%~dp0"
 echo.
 echo ============================================
-echo  CRM: PRODUCCION (Podman)
+echo  CRM: CONTENEDORES (Docker)
 echo ============================================
 echo.
-echo  - Compila con npm run build y sirve con adapter-node.
-echo  - Si el codigo no cambio, reutiliza las imagenes
-echo    y solo inicia los contenedores detenidos.
-echo  - Si el codigo cambio, reconstruye y recrea solo
-echo    lo necesario (los datos se conservan).
+echo  - Backend: API + PostgreSQL en un contenedor.
+echo  - Frontend: SvelteKit en otro contenedor.
+echo  - Docker reutiliza las capas de build: solo
+echo    reconstruye lo que cambio (los datos se conservan).
 echo.
-echo  Para desarrollo usar lanzador-directo.bat.
+echo  Para desarrollo con HMR usar lanzador-directo.bat.
 echo.
 powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0scripts\levantar.ps1" %*
 echo.
