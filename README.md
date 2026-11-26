@@ -67,8 +67,10 @@ Cada contenedor recibe **solo lo que necesita**:
 
 Cualquier variable nueva que agregues a `servidor/.env` llega al backend sin tocar
 el compose, porque `env_file` pasa el archivo completo. Las que dependen del
-contenedor (por ejemplo `DATABASE_URL`, que adentro es `localhost:5432`) las fija
-el compose y tienen prioridad sobre el archivo.
+contenedor (por ejemplo `DATABASE_URL`, que adentro es `localhost:5432`, o
+`BETTER_AUTH_URL`, que adentro es el puerto `4173`) las fija el compose y tienen
+prioridad sobre el archivo. Para el dominio de producción se usan
+`PUBLIC_ORIGIN` y `PUBLIC_ORIGIN_TRUSTED`.
 
 > Docker fija las variables al **crear** el contenedor: editar `servidor/.env` y
 > volver a levantar no alcanza. `iniciar.bat` compara el hash del archivo

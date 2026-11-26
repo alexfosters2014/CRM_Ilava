@@ -49,8 +49,13 @@ services:
 
       # --- Better Auth (obligatorio, sin default publico) ---
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?define BETTER_AUTH_SECRET en el entorno o en el --env-file}
-      BETTER_AUTH_URL: ${BETTER_AUTH_URL:-http://127.0.0.1:4173}
-      TRUSTED_ORIGINS: ${TRUSTED_ORIGINS:-http://localhost:4173,http://127.0.0.1:4173}
+      # URL publica del FRONTEND tal como la ve el navegador. OJO: no se
+      # interpola desde servidor/.env porque ese archivo tiene los valores del
+      # modo host (5173) y pisarian los del contenedor. En produccion se define
+      # PUBLIC_ORIGIN / PUBLIC_ORIGIN_TRUSTED en el entorno.
+      BETTER_AUTH_URL: ${PUBLIC_ORIGIN:-http://127.0.0.1:4173}
+      # Origenes del frontend confiables para Better Auth (CSRF).
+      TRUSTED_ORIGINS: ${PUBLIC_ORIGIN_TRUSTED:-http://localhost:4173,http://127.0.0.1:4173}
 
       # --- WhatsApp (Baileys) ---
       WHATSAPP_AUTH_DIR: /app/.whatsapp-auth
