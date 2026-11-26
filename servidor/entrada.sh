@@ -8,7 +8,7 @@ set -e
 # de la imagen es publico y permitiria firmar cookies de sesion validas.
 if [ -z "${BETTER_AUTH_SECRET}" ]; then
 	echo "[entrada] ERROR: falta BETTER_AUTH_SECRET. Inyectalo en runtime:" >&2
-	echo "[entrada]   podman run -e BETTER_AUTH_SECRET=<secreto de 32+ caracteres>" >&2
+	echo "[entrada]   docker run -e BETTER_AUTH_SECRET=<secreto de 32+ caracteres>" >&2
 	exit 1
 fi
 
@@ -40,6 +40,6 @@ fi
 echo "[entrada] Arrancando la API en el puerto ${PORT:-3000}..."
 
 # La API queda como proceso principal del contenedor (PID 1): si el usuario
-# para el contenedor, Podman se la senala y el cierre es limpio.
+# para el contenedor, Docker se la senala y el cierre es limpio.
 cd /app
 exec node build
