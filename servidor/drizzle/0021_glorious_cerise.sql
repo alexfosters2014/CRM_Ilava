@@ -1,0 +1,1 @@
+ALTER TABLE "comprobantes_cobranza" ADD COLUMN "tipo_comprobante" text DEFAULT '' NOT NULL;

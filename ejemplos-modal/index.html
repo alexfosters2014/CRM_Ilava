@@ -1,0 +1,503 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Modal de cobranza · tres direcciones</title>
+<style>
+	:root {
+		color-scheme: dark;
+		--fondo-app: #070d1a;
+		--superficie: #0b1322;
+		--superficie-alta: #111c31;
+		--superficie-suave: #0e1729;
+		--superficie-hover: #16233c;
+		--borde: #1d2a42;
+		--borde-suave: #16223a;
+		--borde-fuerte: #2b3b5c;
+		--texto: #e8eef8;
+		--texto-suave: #94a3b8;
+		--texto-tenue: #6b7a94;
+		--primario: #8b5cf6;
+		--primario-tenue: #1e1b4b;
+		--primario-borde: #4c1d95;
+		--primario-texto: #c4b5fd;
+		--accion-gradiente: linear-gradient(135deg, #8b5cf6, #d946ef);
+		--exito-tenue: #052e2b;
+		--exito-texto: #6ee7b7;
+		--alerta-tenue: #3b2a08;
+		--alerta-texto: #fcd34d;
+	}
+	* { box-sizing: border-box; }
+	body {
+		margin: 0;
+		padding: 32px clamp(14px, 3vw, 48px) 56px;
+		background: var(--fondo-app);
+		color: var(--texto);
+		font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+	}
+	.pagina { max-width: 68rem; margin: 0 auto; }
+	.pagina > h1 { margin: 0 0 6px; font-size: clamp(1.15rem, 2vw, 1.5rem); }
+	.pagina > p { margin: 0 0 28px; color: var(--texto-suave); font-size: 0.84rem; max-width: 56rem; }
+	.caso { margin-bottom: 34px; }
+	.caso-cab { display: block; margin-bottom: 10px; }
+	.caso-cab h2 { margin: 0; font-size: 0.95rem; }
+	.caso-cab p { margin: 4px 0 0; color: var(--texto-tenue); font-size: 0.74rem; max-width: 60rem; }
+	.caso-cab strong { color: var(--primario-texto); }
+
+	/* ---------- modal base ---------- */
+	.modal {
+		border: 1px solid var(--borde-fuerte);
+		border-radius: 18px;
+		background: var(--superficie);
+		overflow: hidden;
+		box-shadow: 0 28px 70px rgba(0, 0, 0, 0.55);
+	}
+	.mcab { padding: 16px 20px 14px; border-bottom: 1px solid var(--borde); }
+	.mkicker {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 12px;
+		font-size: 9.5px;
+		font-weight: 800;
+		letter-spacing: 0.13em;
+		text-transform: uppercase;
+		color: var(--texto-tenue);
+	}
+	.cerrar {
+		display: grid;
+		place-items: center;
+		width: 26px;
+		height: 26px;
+		border: 1px solid var(--borde);
+		border-radius: 8px;
+		background: var(--superficie-suave);
+		color: var(--texto-suave);
+		font-size: 15px;
+		line-height: 1;
+		cursor: pointer;
+	}
+	.mident h3 { margin: 6px 0 3px; font-size: 1.03rem; line-height: 1.2; }
+	.mident p { margin: 0; color: var(--texto-suave); font-size: 0.72rem; }
+	.mmetricas { display: flex; align-items: center; gap: 18px; }
+	.mmetricas span { display: grid; gap: 2px; }
+	.mmetricas small {
+		font-size: 8.5px;
+		font-weight: 800;
+		letter-spacing: 0.1em;
+		text-transform: uppercase;
+		color: var(--texto-tenue);
+	}
+	.mmetricas strong { font-size: 0.95rem; font-variant-numeric: tabular-nums; }
+	.mmetricas .destacada strong { color: var(--primario-texto); }
+	.macciones { display: flex; align-items: center; gap: 8px; }
+	.btn {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		gap: 6px;
+		padding: 8px 12px;
+		border: 1px solid var(--borde);
+		border-radius: 9px;
+		background: var(--superficie-suave);
+		color: var(--texto);
+		font: inherit;
+		font-size: 0.72rem;
+		font-weight: 800;
+		cursor: pointer;
+		white-space: nowrap;
+	}
+	.btn svg { width: 15px; height: 15px; }
+	.btn.ghost { background: transparent; color: var(--texto-suave); }
+	.btn.primary {
+		border-color: transparent;
+		background: var(--accion-gradiente);
+		color: #fff;
+		box-shadow: 0 8px 20px rgba(124, 58, 237, 0.28);
+	}
+	.btn.chip {
+		padding: 5px 9px;
+		border-radius: 999px;
+		font-size: 0.64rem;
+	}
+	.btn.alerta { border-color: #7c4a06; background: var(--alerta-tenue); color: var(--alerta-texto); }
+	.mcontroles {
+		display: flex;
+		align-items: flex-end;
+		gap: 12px;
+		flex-wrap: wrap;
+		padding: 12px 20px;
+		background: var(--superficie-suave);
+		border-bottom: 1px solid var(--borde);
+	}
+	.control { display: grid; gap: 3px; }
+	.control > span {
+		font-size: 8.5px;
+		font-weight: 800;
+		letter-spacing: 0.1em;
+		text-transform: uppercase;
+		color: var(--texto-tenue);
+	}
+	.control select,
+	.control .valor {
+		display: inline-flex;
+		align-items: center;
+		gap: 8px;
+		min-height: 32px;
+		padding: 0 9px;
+		border: 1px solid var(--borde);
+		border-radius: 8px;
+		background: var(--superficie);
+		color: var(--texto);
+		font: inherit;
+		font-size: 0.72rem;
+		font-weight: 700;
+	}
+	.pred {
+		display: inline-flex;
+		align-items: center;
+		gap: 4px;
+		padding: 3px 7px;
+		border-radius: 999px;
+		background: var(--exito-tenue);
+		color: var(--exito-texto);
+		font-size: 0.6rem;
+		font-weight: 800;
+	}
+	.mresumen {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+		margin: 14px 20px 0;
+		padding: 9px 12px;
+		border-left: 2px solid var(--primario);
+		border-radius: 0 8px 8px 0;
+		background: rgba(139, 92, 246, 0.07);
+		font-size: 0.74rem;
+		color: var(--texto-suave);
+	}
+	.mresumen strong { color: var(--texto); }
+	.mcuerpo { padding: 14px 20px 18px; }
+	.mtitulo { display: flex; align-items: baseline; gap: 8px; margin-bottom: 8px; }
+	.mtitulo h4 { margin: 0; font-size: 0.86rem; }
+	.mtitulo span { color: var(--texto-tenue); font-size: 0.7rem; }
+	.solo-vencidos {
+		margin-left: auto;
+		display: inline-flex;
+		align-items: center;
+		gap: 6px;
+		font-size: 0.66rem;
+		font-weight: 800;
+		color: var(--texto-suave);
+	}
+	.solo-vencidos i {
+		display: block;
+		width: 13px;
+		height: 13px;
+		border: 1px solid var(--borde-fuerte);
+		border-radius: 3px;
+	}
+	.tabla { width: 100%; border-collapse: collapse; font-size: 0.7rem; }
+	.tabla th {
+		padding: 7px 8px;
+		text-align: left;
+		font-size: 8.5px;
+		font-weight: 800;
+		letter-spacing: 0.1em;
+		text-transform: uppercase;
+		color: var(--texto-tenue);
+		background: var(--superficie-suave);
+		border-bottom: 1px solid var(--borde-fuerte);
+	}
+	.tabla td { padding: 8px; border-bottom: 1px solid var(--borde-suave); color: #cbd5e1; white-space: nowrap; }
+	.tabla tbody tr:hover { background: var(--superficie-alta); }
+	.tabla .num { text-align: right; font-variant-numeric: tabular-nums; }
+	.tabla .acciones { text-align: right; }
+	.aging {
+		display: inline-block;
+		padding: 2px 6px;
+		border-radius: 5px;
+		font-size: 0.6rem;
+		font-weight: 800;
+	}
+	.aging.g61 { background: #2a1f4f; color: #c4b5fd; }
+	.aging.g31 { background: #3b2a08; color: #fcd34d; }
+	.aging.g1 { background: #052e2b; color: #6ee7b7; }
+	.estado-aging { margin-left: 6px; font-size: 0.64rem; font-weight: 700; }
+	.estado-aging.vencida { color: #fca5a5; }
+	.estado-aging.vigente { color: #86efac; }
+	.icono {
+		display: inline-grid;
+		place-items: center;
+		width: 26px;
+		height: 26px;
+		margin-left: 4px;
+		border: 1px solid var(--borde);
+		border-radius: 7px;
+		background: var(--superficie-suave);
+		color: var(--texto-suave);
+		cursor: pointer;
+	}
+	.icono svg { width: 14px; height: 14px; }
+	.mtotales {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 16px;
+		padding: 10px 20px;
+		border-top: 1px solid var(--borde-fuerte);
+		background: var(--superficie-suave);
+	}
+	.mtotales .etiqueta { font-size: 0.68rem; font-weight: 800; color: var(--texto-suave); }
+	.mtotales .etiqueta small { display: block; margin-top: 2px; font-size: 0.62rem; font-weight: 600; color: var(--texto-tenue); }
+	.mtotales .cifras { display: flex; gap: 26px; font-variant-numeric: tabular-nums; }
+	.mtotales .cifras span { display: grid; gap: 2px; text-align: right; }
+	.mtotales .cifras small {
+		font-size: 8px;
+		font-weight: 800;
+		letter-spacing: 0.1em;
+		text-transform: uppercase;
+		color: var(--texto-tenue);
+	}
+	.mtotales .cifras strong { font-size: 0.86rem; }
+	.mtotales .cifras .enviar strong { color: var(--primario-texto); }
+	.mdestacado {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 16px;
+		padding: 10px 20px;
+		border-top: 1px solid var(--primario-borde);
+		background: rgba(139, 92, 246, 0.09);
+	}
+	.mdestacado .etiqueta { font-size: 0.72rem; font-weight: 800; color: var(--texto); }
+	.mdestacado .etiqueta small { display: block; margin-top: 2px; font-size: 0.62rem; font-weight: 600; color: var(--texto-tenue); }
+	.mdestacado strong { font-size: 1.06rem; color: var(--primario-texto); font-variant-numeric: tabular-nums; }
+
+	/* ---------- A · control navy ---------- */
+	.modal-a .mcab { background: linear-gradient(180deg, #111c31 0%, #0c1526 100%); }
+	.modal-a .fila-principal {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) auto auto;
+		gap: 22px;
+		align-items: center;
+		margin-top: 6px;
+	}
+
+	/* ---------- B · resumen protagonista ---------- */
+	.modal-b .mcab { background: linear-gradient(180deg, #101a2e 0%, #0b1322 100%); }
+	.modal-b .fila-principal {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) auto auto;
+		gap: 24px;
+		align-items: end;
+		margin-top: 6px;
+	}
+	.modal-b .hero {
+		display: grid;
+		gap: 2px;
+		text-align: right;
+	}
+	.modal-b .hero small {
+		font-size: 8.5px;
+		font-weight: 800;
+		letter-spacing: 0.11em;
+		text-transform: uppercase;
+		color: var(--texto-tenue);
+	}
+	.modal-b .hero strong {
+		font-size: 1.45rem;
+		line-height: 1.05;
+		color: var(--primario-texto);
+		font-variant-numeric: tabular-nums;
+	}
+	.modal-b .hero span { font-size: 0.62rem; color: var(--texto-tenue); }
+	.modal-b .mcontroles { background: transparent; border-bottom: 1px solid var(--borde); }
+	.modal-b .mcontroles .control > span { color: var(--texto-tenue); }
+	.modal-b .mresumen { display: none; }
+	.modal-b .mcuerpo { padding-top: 16px; }
+
+	/* ---------- C · asistente ---------- */
+	.modal-c .mcab { background: linear-gradient(180deg, #101a2e 0%, #0b1322 100%); }
+	.modal-c .cabecera-simple { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-top: 6px; }
+	.pasos { display: flex; align-items: center; gap: 8px; margin-top: 14px; }
+	.paso {
+		display: inline-flex;
+		align-items: center;
+		gap: 6px;
+		font-size: 0.66rem;
+		font-weight: 800;
+		color: var(--texto-tenue);
+	}
+	.paso b {
+		display: grid;
+		place-items: center;
+		width: 18px;
+		height: 18px;
+		border: 1px solid var(--borde-fuerte);
+		border-radius: 999px;
+		font-size: 0.6rem;
+	}
+	.paso.actual { color: var(--primario-texto); }
+	.paso.actual b { border-color: var(--primario-borde); background: var(--primario-tenue); }
+	.paso-linea { width: 26px; height: 1px; background: var(--borde-fuerte); }
+	.modal-c .mcuerpo { padding-bottom: 10px; }
+	.modal-c .pie-pasos {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 16px;
+		padding: 12px 20px;
+		border-top: 1px solid var(--borde-fuerte);
+		background: var(--superficie-suave);
+	}
+	.modal-c .pie-pasos .nota { color: var(--texto-tenue); font-size: 0.66rem; }
+	.modal-c .pie-pasos .total { display: grid; gap: 1px; text-align: right; }
+	.modal-c .pie-pasos .total small {
+		font-size: 8px;
+		font-weight: 800;
+		letter-spacing: 0.1em;
+		text-transform: uppercase;
+		color: var(--texto-tenue);
+	}
+	.modal-c .pie-pasos .total strong { font-size: 1rem; color: var(--primario-texto); font-variant-numeric: tabular-nums; }
+</style>
+</head>
+<body>
+<div class="pagina">
+	<h1>Modal de detalle de cobranza · tres direcciones</h1>
+	<p>
+		El problema actual no es la información: es que compiten el azul del header, el azul de la tabla,
+		el violeta del total y el oliva del “a enviar”. Las tres propuestas bajan el ruido del chrome y
+		reservan el color para el estado y la acción principal.
+	</p>
+
+	<section class="caso">
+		<header class="caso-cab">
+			<h2>A · Control navy</h2>
+			<p><strong>Recomendada.</strong> Header navy en dos filas: identidad y métricas arriba, controles abajo. Un solo CTA primario.</p>
+		</header>
+		<div class="modal modal-a">
+			<header class="mcab">
+				<div class="mkicker"><span>Período Noviembre 2026</span><button class="cerrar" type="button">×</button></div>
+				<div class="fila-principal">
+					<div class="mident">
+						<h3>2005 DIEGO GARCÍA</h3>
+						<p>RUT 12.345.678 · 3 comprobantes · Toda la deuda del período</p>
+					</div>
+					<div class="mmetricas">
+						<span class="destacada"><small>Total UYU</small><strong>$ 8.448,00</strong></span>
+						<span><small>Total USD</small><strong>$ 0,00</strong></span>
+						<span><small>Equiv. UYU</small><strong>$ 8.448,00</strong></span>
+					</div>
+					<div class="macciones">
+						<button class="btn ghost" type="button">Crear seguimiento</button>
+						<button class="btn primary" type="button">Enviar estado de cuenta</button>
+					</div>
+				</div>
+			</header>
+			<div class="mcontroles">
+				<label class="control"><span>Modelo</span><span class="valor">Estado de cuenta <span class="pred">✓ predeterminada</span></span></label>
+				<label class="control"><span>Enviar desde</span><span class="valor">finanzas@vector.com.uy</span></label>
+				<label class="control"><span>Seguimiento</span><span class="valor">1 activo</span></label>
+				<label class="control"><span>WhatsApp</span><span class="valor" style="color: var(--alerta-texto)">Sin celular</span></label>
+			</div>
+			<div class="mresumen"><strong>Se envían 3 comprobantes</strong> · $ 8.448,00 · sin exclusiones temporales</div>
+			<div class="mcuerpo">
+				<div class="mtitulo"><h4>Comprobantes en pesos</h4><span>3 comprobantes</span><span class="solo-vencidos"><i></i> Enviar solo vencidos</span></div>
+				<table class="tabla">
+					<thead><tr><th>Emisión</th><th>Vencimiento</th><th>Plazo</th><th>Tipo / comprobante</th><th class="num">Importe</th><th class="num">Saldo</th><th>Aging</th><th class="acciones">Acciones</th></tr></thead>
+					<tbody>
+						<tr><td>15/09/2026</td><td>15/10/2026</td><td>30 d</td><td>Venta Crédito A-21266</td><td class="num">$ 2.816,00</td><td class="num">$ 2.816,00</td><td><span class="aging g61">61-90</span><span class="estado-aging vencida">Vencida 39 d</span></td><td class="acciones"><button class="icono" type="button">✉</button><button class="icono" type="button">🗑</button></td></tr>
+						<tr><td>14/10/2026</td><td>13/11/2026</td><td>30 d</td><td>Venta Crédito Alarma A-21630</td><td class="num">$ 2.816,00</td><td class="num">$ 2.816,00</td><td><span class="aging g31">31-60</span><span class="estado-aging vencida">Vencida 10 d</span></td><td class="acciones"><button class="icono" type="button">✉</button><button class="icono" type="button">🗑</button></td></tr>
+						<tr><td>13/11/2026</td><td>13/12/2026</td><td>30 d</td><td>Venta Crédito Alarma A-22127</td><td class="num">$ 2.816,00</td><td class="num">$ 2.816,00</td><td><span class="aging g1">1-30</span><span class="estado-aging vigente">Faltan 20 d</span></td><td class="acciones"><button class="icono" type="button">✉</button><button class="icono" type="button">🗑</button></td></tr>
+					</tbody>
+				</table>
+			</div>
+			<div class="mdestacado">
+				<div class="etiqueta">A enviar<small>Sin exclusiones temporales</small></div>
+				<strong>$ 8.448,00</strong>
+			</div>
+		</div>
+	</section>
+
+	<section class="caso">
+		<header class="caso-cab">
+			<h2>B · Resumen protagonista</h2>
+			<p>El “a enviar” manda: va grande en el header y el resto de los controles pasa a una fila secundaria.</p>
+		</header>
+		<div class="modal modal-b">
+			<header class="mcab">
+				<div class="mkicker"><span>Período Noviembre 2026</span><button class="cerrar" type="button">×</button></div>
+				<div class="fila-principal">
+					<div class="mident">
+						<h3>2005 DIEGO GARCÍA</h3>
+						<p>RUT 12.345.678 · 3 comprobantes · toda la deuda del período</p>
+					</div>
+					<div class="hero"><small>A enviar</small><strong>$ 8.448,00</strong><span>UYU · USD 0,00</span></div>
+					<div class="macciones"><button class="btn primary" type="button">Enviar estado de cuenta</button></div>
+				</div>
+			</header>
+			<div class="mcontroles">
+				<label class="control"><span>Modelo</span><span class="valor">Estado de cuenta <span class="pred">✓</span></span></label>
+				<label class="control"><span>Enviar desde</span><span class="valor">finanzas@vector.com.uy</span></label>
+				<label class="control"><span>Seguimiento</span><span class="valor">Crear</span></label>
+				<label class="control"><span>WhatsApp</span><span class="valor" style="color: var(--alerta-texto)">Sin celular</span></label>
+			</div>
+			<div class="mcuerpo">
+				<div class="mtitulo"><h4>Comprobantes en pesos</h4><span>3 comprobantes</span><span class="solo-vencidos"><i></i> Enviar solo vencidos</span></div>
+				<table class="tabla">
+					<thead><tr><th>Emisión</th><th>Vencimiento</th><th>Plazo</th><th>Tipo / comprobante</th><th class="num">Importe</th><th class="num">Saldo</th><th>Aging</th><th class="acciones">Acciones</th></tr></thead>
+					<tbody>
+						<tr><td>15/09/2026</td><td>15/10/2026</td><td>30 d</td><td>Venta Crédito A-21266</td><td class="num">$ 2.816,00</td><td class="num">$ 2.816,00</td><td><span class="aging g61">61-90</span><span class="estado-aging vencida">Vencida 39 d</span></td><td class="acciones"><button class="icono" type="button">✉</button><button class="icono" type="button">🗑</button></td></tr>
+						<tr><td>14/10/2026</td><td>13/11/2026</td><td>30 d</td><td>Venta Crédito Alarma A-21630</td><td class="num">$ 2.816,00</td><td class="num">$ 2.816,00</td><td><span class="aging g31">31-60</span><span class="estado-aging vencida">Vencida 10 d</span></td><td class="acciones"><button class="icono" type="button">✉</button><button class="icono" type="button">🗑</button></td></tr>
+						<tr><td>13/11/2026</td><td>13/12/2026</td><td>30 d</td><td>Venta Crédito Alarma A-22127</td><td class="num">$ 2.816,00</td><td class="num">$ 2.816,00</td><td><span class="aging g1">1-30</span><span class="estado-aging vigente">Faltan 20 d</span></td><td class="acciones"><button class="icono" type="button">✉</button><button class="icono" type="button">🗑</button></td></tr>
+					</tbody>
+				</table>
+			</div>
+			<div class="mtotales">
+				<span class="etiqueta">Total emitido<small>3 comprobantes</small></span>
+				<div class="cifras"><span><small>Importe</small><strong>$ 8.448,00</strong></span><span><small>Saldo</small><strong>$ 8.448,00</strong></span></div>
+			</div>
+		</div>
+	</section>
+
+	<section class="caso">
+		<header class="caso-cab">
+			<h2>C · Asistente en 3 pasos</h2>
+			<p>Separa elegir comprobantes, destinatarios y envío. Más guiado, más clics; útil si el envío tiene muchas reglas.</p>
+		</header>
+		<div class="modal modal-c">
+			<header class="mcab">
+				<div class="mkicker"><span>Período Noviembre 2026</span><button class="cerrar" type="button">×</button></div>
+				<div class="cabecera-simple">
+					<div class="mident"><h3>2005 DIEGO GARCÍA</h3><p>RUT 12.345.678 · 3 comprobantes</p></div>
+				</div>
+				<div class="pasos">
+					<span class="paso actual"><b>1</b> Comprobantes</span><span class="paso-linea"></span>
+					<span class="paso"><b>2</b> Destinatarios</span><span class="paso-linea"></span>
+					<span class="paso"><b>3</b> Enviar</span>
+				</div>
+			</header>
+			<div class="mcuerpo">
+				<div class="mtitulo"><h4>Comprobantes en pesos</h4><span>3 comprobantes</span><span class="solo-vencidos"><i></i> Enviar solo vencidos</span></div>
+				<table class="tabla">
+					<thead><tr><th>Emisión</th><th>Vencimiento</th><th>Plazo</th><th>Tipo / comprobante</th><th class="num">Importe</th><th class="num">Saldo</th><th>Aging</th></tr></thead>
+					<tbody>
+						<tr><td>15/09/2026</td><td>15/10/2026</td><td>30 d</td><td>Venta Crédito A-21266</td><td class="num">$ 2.816,00</td><td class="num">$ 2.816,00</td><td><span class="aging g61">61-90</span><span class="estado-aging vencida">Vencida 39 d</span></td></tr>
+						<tr><td>14/10/2026</td><td>13/11/2026</td><td>30 d</td><td>Venta Crédito Alarma A-21630</td><td class="num">$ 2.816,00</td><td class="num">$ 2.816,00</td><td><span class="aging g31">31-60</span><span class="estado-aging vencida">Vencida 10 d</span></td></tr>
+						<tr><td>13/11/2026</td><td>13/12/2026</td><td>30 d</td><td>Venta Crédito Alarma A-22127</td><td class="num">$ 2.816,00</td><td class="num">$ 2.816,00</td><td><span class="aging g1">1-30</span><span class="estado-aging vigente">Faltan 20 d</span></td></tr>
+					</tbody>
+				</table>
+			</div>
+			<div class="pie-pasos">
+				<span class="nota">El modelo, los mails y WhatsApp se eligen en el paso 2.</span>
+				<div class="total"><small>Total seleccionado</small><strong>$ 8.448,00</strong></div>
+				<button class="btn primary" type="button">Continuar</button>
+			</div>
+		</div>
+	</section>
+</div>
+</body>
+</html>

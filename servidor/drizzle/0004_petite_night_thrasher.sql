@@ -1,0 +1,1 @@
+ALTER TABLE "plantillas" ADD COLUMN "eliminado_en" timestamp with time zone;

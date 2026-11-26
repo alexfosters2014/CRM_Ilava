@@ -1,0 +1,21 @@
+# Dependencias y artefactos: se generan dentro de la imagen.
+node_modules
+.svelte-kit
+build
+
+# Secretos: las variables se inyectan en runtime desde el pod.
+.env
+.env.*
+!.env.example
+
+# Pruebas y reportes: no hacen falta para compilar la imagen.
+tests
+test-results
+playwright-report
+coverage
+*.log
+
+# Metadatos de Docker: solo describen el build, no se copian a la imagen.
+Dockerfile
+.dockerignore
+README.md

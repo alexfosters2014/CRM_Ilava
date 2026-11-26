@@ -1,0 +1,62 @@
+# Etapa 1: compilar el proyecto SvelteKit
+FROM node:22-bookworm AS build
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --ignore-scripts
+COPY . .
+RUN npm run build
+
+# Etapa 2: contenedor con PostgreSQL + API corriendo juntos
+FROM postgres:17-bookworm
+
+# Node.js para ejecutar la API compilada.
+# Chromium + fuentes: se usan para exportar la carta HTML/CSS a PDF
+# (headless --print-to-pdf). Sin esto, el correo sale con la carta en el cuerpo.
+RUN apt-get update \
+	&& apt-get install -y --no-install-recommends curl ca-certificates gnupg \
+	&& curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
+	&& apt-get install -y --no-install-recommends nodejs chromium fonts-liberation \
+	&& rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Artefactos de la API
+COPY --from=build /app/build ./build
+COPY --from=build /app/node_modules ./node_modules
+COPY --from=build /app/package.json ./package.json
+
+# Migraciones de Drizzle: el hook `init` del server las aplica y seedea los
+# datos de ejemplo al arrancar (Drizzle es la única fuente de verdad del
+# esquema y los datos; se eliminó sql/init.sql).
+COPY --from=build /app/drizzle ./drizzle
+
+# Punto de entrada que levanta PostgreSQL y la API
+COPY entrada.sh /usr/local/bin/entrada.sh
+RUN chmod +x /usr/local/bin/entrada.sh
+
+ENV NODE_ENV=production
+# La BD esta en el propio contenedor: se conecta por localhost
+ENV DATABASE_URL=postgres://crm:crm@localhost:5432/crmdb
+ENV PORT=3000
+ENV HOST=0.0.0.0
+# Binario usado para exportar la carta a PDF (ver servicios/pdf.ts).
+ENV CHROME_PATH=/usr/bin/chromium
+# adapter-node asume https por defecto (asume TLS en un proxy). El frontend
+# reenvia x-forwarded-proto y x-forwarded-host con el origin publico real;
+# sin leerlos, Better Auth no enruta /api/auth/* y rechaza el Origin (CSRF).
+ENV PROTOCOL_HEADER=x-forwarded-proto
+ENV HOST_HEADER=x-forwarded-host
+# Better Auth: secreto para firmar cookies de sesion (>=32 caracteres).
+# Sin valor por defecto a proposito: un secreto dentro de la imagen es publico
+# y permitiria firmar cookies validas. `entrada.sh` aborta si no llega por
+# `podman run -e BETTER_AUTH_SECRET=...` (ver scripts/levantar.ps1).
+ENV BETTER_AUTH_SECRET=
+# URL publica del FRONTEND (el navegador habla con el frontend; el backend
+# reconstruye ese origin via forwarded-host). baseURL de Better Auth + CSRF.
+ENV BETTER_AUTH_URL=http://127.0.0.1:4173
+# Origenes del frontend confiables para Better Auth, separados por coma.
+ENV TRUSTED_ORIGINS=http://localhost:4173,http://127.0.0.1:4173
+
+EXPOSE 3000
+
+ENTRYPOINT ["/usr/local/bin/entrada.sh"]

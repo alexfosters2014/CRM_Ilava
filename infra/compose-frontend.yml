@@ -1,0 +1,23 @@
+# Pod de Podman "crm-frontend": el frontend (cliente) en su propio pod,
+# separado del pod de API + base de datos.
+services:
+  frontend:
+    build:
+      context: ../cliente
+    image: crm-frontend
+    pod: crm-frontend
+    container_name: crm-frontend
+    environment:
+      # El proxy /api del frontend reenvía las peticiones a la API publicada
+      # por el pod backend en el anfitrión (puerto 8080)
+      API_URL: http://host.containers.internal:8080
+      PORT: "4173"
+      HOST: "0.0.0.0"
+    ports:
+      - "4173:4173"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:4173/ || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 15s

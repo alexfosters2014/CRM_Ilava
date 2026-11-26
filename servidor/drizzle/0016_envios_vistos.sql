@@ -1,0 +1,1 @@
+ALTER TABLE "facturas" ADD COLUMN "facturado_visto" boolean DEFAULT false NOT NULL;

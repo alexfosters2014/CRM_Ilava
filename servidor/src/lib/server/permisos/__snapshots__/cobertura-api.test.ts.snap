@@ -1,0 +1,388 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`cobertura de permisos de la API > mapa completo de rutas a llaves 1`] = `
+{
+  "/api/areas": [
+    "configuracion.usuarios",
+  ],
+  "/api/areas/[id]": [
+    "configuracion.usuarios",
+  ],
+  "/api/areas/[id]/restaurar": [
+    "configuracion.usuarios",
+  ],
+  "/api/catalogos": [
+    "cobranza",
+    "multifacturador",
+    "servicios",
+  ],
+  "/api/clientes": [
+    "clientes",
+  ],
+  "/api/clientes/[id]": [
+    "clientes",
+  ],
+  "/api/cobranza": [
+    "cobranza",
+  ],
+  "/api/cobranza/comprobantes/[id]/exclusion": [
+    "cobranza",
+  ],
+  "/api/cobranza/comprobantes/[id]/restaurar": [
+    "cobranza",
+  ],
+  "/api/cobranza/contactos": [
+    "cobranza",
+  ],
+  "/api/cobranza/contactos/[id]": [
+    "cobranza",
+  ],
+  "/api/cobranza/cuentas": [
+    "cobranza",
+  ],
+  "/api/cobranza/eliminados": [
+    "cobranza",
+  ],
+  "/api/cobranza/emails/importaciones": [
+    "cobranza",
+  ],
+  "/api/cobranza/emails/importar": [
+    "cobranza",
+  ],
+  "/api/cobranza/emails/planilla": [
+    "cobranza",
+  ],
+  "/api/cobranza/envios": [
+    "cobranza",
+  ],
+  "/api/cobranza/envios-masivos": [
+    "cobranza",
+  ],
+  "/api/cobranza/envios-masivos/[id]": [
+    "cobranza",
+  ],
+  "/api/cobranza/envios-masivos/activo": [
+    "cobranza",
+  ],
+  "/api/cobranza/exclusiones": [
+    "cobranza",
+  ],
+  "/api/cobranza/grupos-cobranza": [
+    "cobranza",
+    "configuracion.grupos",
+    "servicios",
+  ],
+  "/api/cobranza/plantilla-predeterminada": [
+    "cobranza",
+  ],
+  "/api/cobranza/plantillas": [
+    "cobranza",
+  ],
+  "/api/cobranza/whatsapp/enviar": [
+    "cobranza",
+  ],
+  "/api/cobranza/whatsapp/estado": [
+    "cobranza",
+  ],
+  "/api/configuracion": [
+    "configuracion",
+  ],
+  "/api/configuracion/apariencia": [
+    "configuracion.apariencia",
+  ],
+  "/api/configuracion/catalogos/[catalogo]": [
+    "configuracion.catalogos",
+  ],
+  "/api/configuracion/catalogos/[catalogo]/[id]": [
+    "configuracion.catalogos",
+  ],
+  "/api/configuracion/cobranza": [
+    "cobranza",
+  ],
+  "/api/configuracion/facturacion": [
+    "configuracion.facturacion",
+    "multifacturador",
+  ],
+  "/api/configuracion/grupos": [
+    "configuracion.grupos",
+  ],
+  "/api/configuracion/grupos-cobranza": [
+    "cobranza",
+    "configuracion.grupos",
+  ],
+  "/api/configuracion/grupos-cobranza/[id]": [
+    "cobranza",
+    "configuracion.grupos",
+  ],
+  "/api/configuracion/grupos/[id]": [
+    "configuracion.grupos",
+  ],
+  "/api/correo/cuentas": [
+    "configuracion.correo",
+  ],
+  "/api/correo/cuentas/[id]": [
+    "configuracion.correo",
+  ],
+  "/api/correo/cuentas/[id]/verificar": [
+    "configuracion.correo",
+  ],
+  "/api/correo/cuentas/probar": [
+    "configuracion.correo",
+  ],
+  "/api/docs": [
+    "<sin llave>",
+  ],
+  "/api/emails": [
+    "cobranza",
+    "servicios",
+  ],
+  "/api/emails/[id]": [
+    "cobranza",
+    "servicios",
+  ],
+  "/api/emails/unificar": [
+    "cobranza",
+    "servicios",
+  ],
+  "/api/facturas": [
+    "multifacturador",
+  ],
+  "/api/facturas/[id]": [
+    "multifacturador",
+  ],
+  "/api/facturas/[id]/estado": [
+    "multifacturador",
+  ],
+  "/api/facturas/[id]/lineas": [
+    "multifacturador",
+  ],
+  "/api/facturas/[id]/lineas/[lineaId]": [
+    "multifacturador",
+  ],
+  "/api/facturas/devolver": [
+    "multifacturador",
+  ],
+  "/api/facturas/eliminar": [
+    "multifacturador",
+  ],
+  "/api/facturas/envios/visto": [
+    "multifacturador",
+  ],
+  "/api/facturas/facturado": [
+    "multifacturador",
+  ],
+  "/api/gmail/cuentas": [
+    "configuracion.correo",
+  ],
+  "/api/gmail/cuentas/[id]": [
+    "configuracion.correo",
+  ],
+  "/api/gmail/cuentas/[id]/sincronizar": [
+    "configuracion.correo",
+  ],
+  "/api/gmail/cuentas/[id]/verificar": [
+    "configuracion.correo",
+  ],
+  "/api/gmail/oauth/callback": [
+    "configuracion.correo",
+  ],
+  "/api/gmail/oauth/iniciar": [
+    "configuracion.correo",
+  ],
+  "/api/gmail/pubsub/[secreto]": [
+    "configuracion.correo",
+  ],
+  "/api/gmail/sincronizar": [
+    "configuracion.correo",
+  ],
+  "/api/notificaciones": [
+    "seguimientos",
+    "tickets",
+  ],
+  "/api/notificaciones/leer": [
+    "seguimientos",
+    "tickets",
+  ],
+  "/api/notificaciones/leidas": [
+    "seguimientos",
+    "tickets",
+  ],
+  "/api/openapi.json": [
+    "<sin llave>",
+  ],
+  "/api/permisos/catalogo": [
+    "configuracion.usuarios",
+  ],
+  "/api/plantillas": [
+    "multifacturador",
+  ],
+  "/api/plantillas/[id]": [
+    "multifacturador",
+  ],
+  "/api/plantillas/[id]/lineas": [
+    "multifacturador",
+  ],
+  "/api/plantillas/[id]/lineas/[lineaId]": [
+    "multifacturador",
+  ],
+  "/api/plantillas/eliminar": [
+    "multifacturador",
+  ],
+  "/api/plantillas/importar": [
+    "multifacturador",
+  ],
+  "/api/salud": [
+    "<sin llave>",
+  ],
+  "/api/seguimientos": [
+    "seguimientos",
+  ],
+  "/api/seguimientos/[id]": [
+    "seguimientos",
+  ],
+  "/api/seguimientos/[id]/correo": [
+    "seguimientos",
+  ],
+  "/api/seguimientos/[id]/eventos": [
+    "seguimientos",
+  ],
+  "/api/seguimientos/[id]/facturas": [
+    "seguimientos",
+  ],
+  "/api/seguimientos/[id]/facturas/[facturaId]/retirar": [
+    "seguimientos",
+  ],
+  "/api/seguimientos/[id]/promesas": [
+    "seguimientos",
+  ],
+  "/api/seguimientos/[id]/promesas/[promesaId]": [
+    "seguimientos",
+  ],
+  "/api/seguimientos/[id]/tareas": [
+    "seguimientos",
+  ],
+  "/api/seguimientos/[id]/tareas/[tareaId]": [
+    "seguimientos",
+  ],
+  "/api/seguimientos/[id]/tickets": [
+    "seguimientos",
+  ],
+  "/api/seguimientos/[id]/tickets/[ticketId]": [
+    "seguimientos",
+  ],
+  "/api/seguimientos/[id]/tickets/[ticketId]/mensajes": [
+    "seguimientos",
+  ],
+  "/api/seguimientos/[id]/whatsapp/enviar": [
+    "seguimientos",
+  ],
+  "/api/seguimientos/[id]/whatsapp/mensajes/[mensajeId]": [
+    "seguimientos",
+  ],
+  "/api/seguimientos/[id]/whatsapp/verificar": [
+    "seguimientos",
+  ],
+  "/api/seguimientos/catalogos": [
+    "seguimientos",
+  ],
+  "/api/seguimientos/correos": [
+    "seguimientos",
+  ],
+  "/api/seguimientos/correos/[id]/vincular": [
+    "seguimientos",
+  ],
+  "/api/seguimientos/cuentas-gmail": [
+    "seguimientos",
+  ],
+  "/api/seguimientos/notificaciones": [
+    "seguimientos",
+  ],
+  "/api/seguimientos/notificaciones/leidas": [
+    "seguimientos",
+  ],
+  "/api/seguimientos/servicios": [
+    "seguimientos",
+  ],
+  "/api/seguimientos/servicios/[servicioId]/comprobantes": [
+    "seguimientos",
+  ],
+  "/api/seguimientos/servicios/[servicioId]/emails": [
+    "seguimientos",
+  ],
+  "/api/seguimientos/whatsapp/estado": [
+    "seguimientos",
+  ],
+  "/api/servicios": [
+    "servicios",
+  ],
+  "/api/servicios/[id]": [
+    "servicios",
+  ],
+  "/api/sesion": [
+    "<sin llave>",
+  ],
+  "/api/tickets": [
+    "tickets",
+  ],
+  "/api/tickets/[id]": [
+    "tickets",
+  ],
+  "/api/tickets/[id]/correo": [
+    "tickets",
+  ],
+  "/api/tickets/[id]/mensajes": [
+    "tickets",
+  ],
+  "/api/tickets/[id]/participantes": [
+    "tickets",
+  ],
+  "/api/tickets/[id]/participantes/[participanteId]": [
+    "tickets",
+  ],
+  "/api/tickets/catalogos": [
+    "tickets",
+  ],
+  "/api/tickets/cuentas-gmail": [
+    "tickets",
+  ],
+  "/api/tickets/notificaciones": [
+    "tickets",
+  ],
+  "/api/tickets/notificaciones/leidas": [
+    "tickets",
+  ],
+  "/api/tickets/portal/[token]": [
+    "<sin llave>",
+  ],
+  "/api/tickets/servicios": [
+    "tickets",
+  ],
+  "/api/usuarios": [
+    "configuracion.usuarios",
+  ],
+  "/api/usuarios/[id]": [
+    "configuracion.usuarios",
+  ],
+  "/api/usuarios/[id]/restaurar": [
+    "configuracion.usuarios",
+  ],
+  "/api/variables": [
+    "multifacturador",
+  ],
+  "/api/variables/[id]": [
+    "multifacturador",
+  ],
+  "/api/webhooks/tickets/[id]/correo": [
+    "<sin llave>",
+  ],
+  "/api/whatsapp/conectar": [
+    "configuracion.whatsapp",
+  ],
+  "/api/whatsapp/desconectar": [
+    "configuracion.whatsapp",
+  ],
+  "/api/whatsapp/estado": [
+    "configuracion.whatsapp",
+  ],
+}
+`;

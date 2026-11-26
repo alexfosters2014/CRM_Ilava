@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="es" data-tema="oscuro">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="text-scale" content="scale" />
+		<meta name="theme-color" content="#070d1a" />
+		<script>
+			// Fija el tema antes del primer paint: evita el destello claro.
+			(function () {
+				try {
+					var guardado = localStorage.getItem('crm-tema');
+					document.documentElement.dataset.tema = guardado === 'claro' ? 'claro' : 'oscuro';
+				} catch (error) {
+					document.documentElement.dataset.tema = 'oscuro';
+				}
+			})();
+		</script>
+		<script>
+			// Apariencia de tablas/listas guardada en este navegador (solo modo claro).
+			// Usa html[data-tema="claro"] para ganarle al fallback que inyecta el layout.
+			(function () {
+				try {
+					var crudo = localStorage.getItem('crm-apariencia');
+					if (!crudo) return;
+					var datos = JSON.parse(crudo) || {};
+					var hex = /^#[0-9a-fA-F]{6}$/;
+					function color(valor, respaldo) {
+						return typeof valor === 'string' && hex.test(valor) ? valor : respaldo;
+					}
+					function numero(valor, maximo, respaldo) {
+						var n = Number(valor);
+						if (!Number.isFinite(n)) return respaldo;
+						return Math.min(Math.max(Math.round(n), 0), maximo);
+					}
+					var css =
+						'html[data-tema="claro"]{' +
+						'--fila-par-fondo:' + color(datos.filaParFondo, '#e2e9f7') + ';' +
+						'--fila-par-texto:' + color(datos.filaParTexto, '#111827') + ';' +
+						'--fila-impar-fondo:' + color(datos.filaImparFondo, '#ffffff') + ';' +
+						'--fila-impar-texto:' + color(datos.filaImparTexto, '#111827') + ';' +
+						'--tabla-linea-color:' + color(datos.tablaLineaColor, '#e3e8f4') + ';' +
+						'--tabla-linea-grosor:' + numero(datos.tablaLineaGrosor, 4, 1) + 'px;' +
+						'--fila-padding-y:' + numero(datos.filaPaddingY, 24, 2) + 'px;' +
+						'--lista-linea-color:' + color(datos.listaLineaColor, '#e3e8f4') + ';' +
+						'--lista-linea-grosor:' + numero(datos.listaLineaGrosor, 4, 1) + 'px;' +
+						'}';
+					var estilo = document.createElement('style');
+					estilo.id = 'crm-apariencia-local';
+					estilo.textContent = css;
+					document.head.appendChild(estilo);
+				} catch (error) {
+					// Sin almacenamiento: queda la apariencia por defecto del servidor.
+				}
+			})();
+		</script>
+		%sveltekit.head%
+	</head>
+	<body data-sveltekit-preload-data="hover">
+		<div style="display: contents">%sveltekit.body%</div>
+	</body>
+</html>

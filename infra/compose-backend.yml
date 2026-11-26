@@ -1,0 +1,72 @@
+# Pod de Podman "crm-backend": API + PostgreSQL comparten la red del pod
+# (dentro del pod, la API se conecta a PostgreSQL vía localhost:5432)
+services:
+  postgres:
+    image: docker.io/library/postgres:17-alpine
+    pod: crm-backend
+    container_name: crm-postgres
+    environment:
+      POSTGRES_USER: crm
+      POSTGRES_PASSWORD: crm
+      POSTGRES_DB: crmdb
+    volumes:
+      - crm-pgdata:/var/lib/postgresql/data
+      # El esquema y los datos iniciales los aplica la API al arrancar
+      # (hook `init` de SvelteKit): migraciones y seed de Drizzle.
+    # Expuesta solo para desarrollo local desde el anfitrión (cliente en :5433)
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U crm -d crmdb"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  api:
+    build:
+      context: ../servidor
+    image: crm-api
+    pod: crm-backend
+    container_name: crm-api
+    depends_on:
+      postgres:
+        condition: service_healthy
+    # Credenciales SMTP del host (servidor/.env, en .dockerignore). Las claves
+    # declaradas abajo en `environment` tienen prioridad sobre este env_file,
+    # asi que DATABASE_URL/BETTER_AUTH_* mantienen los valores del contenedor.
+    env_file:
+      - ../servidor/.env
+    environment:
+      # Dentro del pod, la BD está en localhost (misma red)
+      DATABASE_URL: postgres://crm:crm@localhost:5432/crmdb
+      PORT: "3000"
+      HOST: "0.0.0.0"
+      # El proxy del frontend reenvía x-forwarded-proto y x-forwarded-host.
+      # adapter-node asume https/host propio por defecto; sin leerlas, Better
+      # Auth no enruta /api/auth/* y rechaza el Origin del navegador (CSRF).
+      PROTOCOL_HEADER: x-forwarded-proto
+      HOST_HEADER: x-forwarded-host
+      # Better Auth: secreto para firmar cookies de sesion. Obligatorio: el
+      # compose falla si no esta definido en el entorno (nada de defaults
+      # publicos dentro del repositorio).
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?define BETTER_AUTH_SECRET en el entorno}
+      BETTER_AUTH_URL: http://127.0.0.1:4173
+      # Orígenes del frontend confiables para Better Auth (CSRF).
+      TRUSTED_ORIGINS: http://localhost:4173,http://127.0.0.1:4173
+      # Credenciales de la sesión de WhatsApp (Baileys). Sin volumen se pierden
+      # en cada recreación del contenedor y hay que escanear el QR de nuevo.
+      WHATSAPP_AUTH_DIR: /app/.whatsapp-auth
+    volumes:
+      - crm-wa-auth:/app/.whatsapp-auth
+    ports:
+      - "8080:3000"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3000/api/salud || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+
+volumes:
+  crm-pgdata:
+  crm-wa-auth:

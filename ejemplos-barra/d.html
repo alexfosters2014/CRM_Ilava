@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Ejemplo D · Panel claro</title>
+<style>
+	:root {
+		color-scheme: dark;
+		--fondo-app: #070d1a;
+		--superficie: #0b1322;
+		--superficie-alta: #111c31;
+		--superficie-suave: #0e1729;
+		--borde: #1d2a42;
+		--borde-suave: #16223a;
+		--borde-fuerte: #2b3b5c;
+		--texto: #e8eef8;
+		--texto-suave: #94a3b8;
+		--texto-tenue: #6b7a94;
+		--primario: #8b5cf6;
+		--primario-tenue: #1e1b4b;
+		--primario-borde: #4c1d95;
+		--primario-texto: #c4b5fd;
+		--accion-gradiente: linear-gradient(135deg, #8b5cf6, #d946ef);
+	}
+	* { box-sizing: border-box; }
+	body {
+		margin: 0;
+		min-height: 100vh;
+		background: var(--fondo-app);
+		color: var(--texto);
+		font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+	}
+	.rotulo {
+		position: fixed;
+		top: 18px;
+		left: 22px;
+		z-index: 5;
+		font-size: 11px;
+		font-weight: 800;
+		letter-spacing: 0.12em;
+		text-transform: uppercase;
+		color: var(--texto-suave);
+	}
+	.rotulo span {
+		display: block;
+		margin-top: 5px;
+		font-size: 11px;
+		font-weight: 600;
+		letter-spacing: 0.02em;
+		text-transform: none;
+		color: var(--texto-tenue);
+	}
+	.tabla { padding: 78px 28px 150px; }
+	table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+	th {
+		padding: 9px 10px;
+		text-align: left;
+		font-size: 10px;
+		letter-spacing: 0.09em;
+		text-transform: uppercase;
+		color: var(--texto-tenue);
+		border-bottom: 1px solid var(--borde);
+	}
+	td {
+		padding: 11px 10px;
+		border-bottom: 1px solid var(--borde-suave);
+		color: #cbd5e1;
+		white-space: nowrap;
+	}
+	tbody tr:nth-child(even) { background: #0a1220; }
+	.num { text-align: right; font-variant-numeric: tabular-nums; }
+	.chip {
+		display: inline-block;
+		padding: 2px 7px;
+		border-radius: 999px;
+		background: var(--primario-tenue);
+		color: var(--primario-texto);
+		font-size: 10px;
+		font-weight: 800;
+	}
+	/*
+	 * EJEMPLO D · Panel claro.
+	 * Superficie bastante más clara que la tabla y botones oscuros adentro:
+	 * el contraste es de valor, no de material. Hover violeta en todos.
+	 */
+	.barra {
+		position: fixed;
+		left: 50%;
+		bottom: 22px;
+		transform: translateX(-50%);
+		display: flex;
+		align-items: center;
+		gap: 12px;
+		padding: 9px;
+		border: 1px solid #47628f;
+		border-radius: 16px;
+		background: linear-gradient(180deg, #22345c 0%, #182747 100%);
+		box-shadow:
+			0 24px 60px rgba(0, 0, 0, 0.6),
+			inset 0 1px 0 rgba(255, 255, 255, 0.12);
+	}
+	.contador {
+		padding: 10px 14px;
+		border: 1px solid #2b3b5c;
+		border-radius: 10px;
+		background: #0f1a2f;
+		color: var(--texto);
+		font-size: 13px;
+		font-weight: 800;
+		white-space: nowrap;
+	}
+	.acciones { display: flex; gap: 8px; }
+	.accion {
+		display: grid;
+		justify-items: center;
+		gap: 4px;
+		min-width: 106px;
+		padding: 8px 12px;
+		border: 1px solid #2e4368;
+		border-radius: 12px;
+		background: #101c33;
+		color: #c3d0e6;
+		font: inherit;
+		font-size: 11px;
+		font-weight: 800;
+		cursor: pointer;
+		transition: background 0.16s ease, border-color 0.16s ease, color 0.16s ease,
+			box-shadow 0.16s ease, transform 0.16s ease;
+	}
+	.accion svg { width: 19px; height: 19px; }
+	.accion:hover,
+	.accion.is-hover {
+		border-color: transparent;
+		background: var(--accion-gradiente);
+		color: #ffffff;
+		box-shadow: 0 10px 24px rgba(124, 58, 237, 0.35);
+		transform: translateY(-1px);
+	}
+</style>
+</head>
+<body>
+	<div class="rotulo">
+		Ejemplo D · Panel claro
+		<span>Superficie más clara y botones oscuros. “Enviar mails” muestra el hover violeta.</span>
+	</div>
+
+	<main class="tabla">
+		<table>
+			<thead>
+				<tr>
+					<th>Emisión</th><th>Vencimiento</th><th>Plazo</th><th>Comprobante</th>
+					<th class="num">Importe</th><th class="num">Saldo</th><th>Estado</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr><td>31/07/2026</td><td>30/08/2026</td><td>30 d</td><td>Venta Crédito A-38496</td><td class="num">$ 54.846,86</td><td class="num">$ 54.846,86</td><td><span class="chip">+90</span></td></tr>
+				<tr><td>31/07/2026</td><td>30/08/2026</td><td>30 d</td><td>Venta Crédito A-38497</td><td class="num">$ 277.638,43</td><td class="num">$ 277.638,43</td><td><span class="chip">+90</span></td></tr>
+				<tr><td>27/08/2026</td><td>26/09/2026</td><td>30 d</td><td>Nota de Crédito A-3889</td><td class="num">-$ 19.207,52</td><td class="num">-$ 19.207,52</td><td><span class="chip">61-90</span></td></tr>
+				<tr><td>14/09/2026</td><td>14/10/2026</td><td>30 d</td><td>Venta Crédito A-39356</td><td class="num">$ 193.925,72</td><td class="num">$ 193.925,72</td><td><span class="chip">61-90</span></td></tr>
+				<tr><td>07/10/2026</td><td>06/11/2026</td><td>30 d</td><td>Venta Crédito A-39879</td><td class="num">$ 55.945,81</td><td class="num">$ 55.945,81</td><td><span class="chip">31-60</span></td></tr>
+				<tr><td>31/10/2026</td><td>30/11/2026</td><td>30 d</td><td>Venta Crédito A-40526</td><td class="num">$ 139.727,92</td><td class="num">$ 139.727,92</td><td><span class="chip">1-30</span></td></tr>
+			</tbody>
+		</table>
+	</main>
+
+	<div class="barra" role="toolbar" aria-label="Acciones sobre el lote seleccionado">
+		<span class="contador">1 servicio seleccionado</span>
+		<div class="acciones">
+			<button class="accion is-hover" type="button">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/></svg>
+				Enviar mails
+			</button>
+			<button class="accion" type="button">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 2 9 5-9 5-9-5 9-5Z"/><path d="m3 12 9 5 9-5"/><path d="m3 17 9 5 9-5"/></svg>
+				Asignar grupo
+			</button>
+			<button class="accion" type="button">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+				Limpiar
+			</button>
+		</div>
+	</div>
+</body>
+</html>

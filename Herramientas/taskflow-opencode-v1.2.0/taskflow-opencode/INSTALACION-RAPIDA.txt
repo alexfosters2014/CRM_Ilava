@@ -1,0 +1,24 @@
+TASKFLOW SUPERVISOR v1.2.0 — OPENCode Desktop (Windows)
+
+ACTUALIZACION DESDE v1.1
+1) Dejar terminar el trabajo y cerrar completamente OpenCode Desktop.
+2) Descomprimir ZIP, entrar a la carpeta taskflow-opencode.
+3) En la barra de direcciones del Explorador escribir powershell y Enter.
+4) Ejecutar:
+   powershell -ExecutionPolicy Bypass -File .\scripts\instalar.ps1
+5) Comprobar compilacion y tests aprobados.
+6) Abrir OpenCode Desktop > TaskFlow. No hay que instalar la skill manualmente.
+
+RUTA DEL PLUGIN: C:/Users/<usuario>/.config/opencode/taskflow-v1
+RUTA DE LA SKILL: C:/Users/<usuario>/.config/opencode/skills/taskflow/SKILL.md
+
+No se modifica Gentle AI ni OpenSpec. Si la ruta estable ya esta en opencode.json,
+no hace falta editar ese archivo. Los planes guardados siguen disponibles.
+
+PANEL: carpeta=tarea principal, hoja=subtarea, circulo blanco vacio=pendiente,
+circulo con punto=en curso, circulo con check=terminada verificada.
+El agente marca cada paso con taskflow.update al terminar, con evidencia.
+El registro automatico de herramientas no marca tareas como hechas por si solo.
+
+La GUI experimental debe compilar en el equipo del usuario; no fue probada
+con la instalacion concreta de OpenCode Desktop desde este entorno.

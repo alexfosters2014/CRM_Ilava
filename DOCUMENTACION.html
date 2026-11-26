@@ -1,0 +1,961 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>CRM FacturaPro · Documentación Maestra</title>
+<style>
+  :root {
+    --navy: #0f172a;
+    --text: #1e2b45;
+    --muted: #68758a;
+    --line: #e3e8f4;
+    --soft: #f5f7ff;
+    --indigo: #4f46e5;
+    --indigo-soft: #eef2ff;
+    --green: #15803d;
+    --amber: #b45309;
+    --red: #b91c1c;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--soft);
+    color: var(--text);
+    font-family: Inter, "Segoe UI", system-ui, -apple-system, sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+  a { color: var(--indigo); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  code {
+    padding: .12rem .35rem;
+    border-radius: .3rem;
+    background: #f1f4fb;
+    color: #3730a3;
+    font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+    font-size: .86em;
+  }
+  .layout { display: grid; grid-template-columns: 280px minmax(0, 1fr); min-height: 100dvh; }
+  aside {
+    position: sticky;
+    top: 0;
+    align-self: start;
+    height: 100dvh;
+    overflow: auto;
+    padding: 1.2rem 1rem;
+    background: #fff;
+    border-right: 1px solid var(--line);
+  }
+  .brand { display: flex; align-items: center; gap: .55rem; margin-bottom: .2rem; }
+  .logo {
+    display: grid; place-items: center; width: 2rem; height: 2rem;
+    border-radius: .55rem; background: var(--indigo); color: #fff; font-size: 1.05rem;
+  }
+  .brand strong { color: var(--navy); font-size: .95rem; }
+  .brand small { display: block; color: var(--muted); font-size: .62rem; letter-spacing: .08em; }
+  .version { margin: .7rem 0 1rem; color: var(--muted); font-size: .68rem; }
+  .search {
+    width: 100%; height: 2.1rem; padding: 0 .6rem;
+    border: 1px solid #d1dbf0; border-radius: .55rem;
+    background: #fbfcff; color: var(--text); font: inherit; font-size: .76rem;
+  }
+  nav { display: grid; gap: .12rem; margin-top: 1rem; }
+  nav a {
+    padding: .38rem .5rem; border-radius: .45rem;
+    color: #475569; font-size: .78rem; font-weight: 650;
+  }
+  nav a:hover, nav a.active { background: var(--indigo-soft); color: #3730a3; text-decoration: none; }
+  nav .group { margin-top: .8rem; color: #94a3b8; font-size: .6rem; font-weight: 850; letter-spacing: .09em; text-transform: uppercase; }
+  main { padding: 2rem clamp(1.2rem, 4vw, 3.5rem) 4rem; max-width: 1180px; }
+  header.hero { margin-bottom: 1.6rem; }
+  .kicker { margin: 0; color: #94a3b8; font-size: .62rem; font-weight: 850; letter-spacing: .12em; }
+  h1 { margin: .3rem 0 .5rem; color: var(--navy); font-size: clamp(1.8rem, 3vw, 2.4rem); letter-spacing: -.035em; line-height: 1.15; }
+  .lead { margin: 0; max-width: 70ch; color: var(--muted); font-size: .92rem; }
+  section {
+    margin: 1.3rem 0; padding: 1.25rem 1.35rem;
+    border: 1px solid var(--line); border-radius: 1rem; background: #fff;
+    box-shadow: 0 10px 28px rgba(49, 64, 129, .05);
+    scroll-margin-top: 1rem;
+  }
+  section[hidden] { display: none; }
+  h2 { margin: 0 0 .35rem; color: var(--navy); font-size: 1.22rem; letter-spacing: -.02em; }
+  h3 { margin: 1.1rem 0 .4rem; color: var(--navy); font-size: .92rem; }
+  h4 { margin: .9rem 0 .3rem; color: #334155; font-size: .8rem; }
+  p { margin: .45rem 0; }
+  .sub { margin: 0 0 .8rem; color: var(--muted); font-size: .78rem; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: .75rem; }
+  .card { padding: .8rem .9rem; border: 1px solid var(--line); border-radius: .75rem; background: #fbfcff; }
+  .card strong { display: block; margin-bottom: .2rem; color: var(--navy); font-size: .8rem; }
+  .card p, .card li { color: var(--muted); font-size: .76rem; }
+  .card ul { margin: .25rem 0 0; padding-left: 1rem; }
+  table { width: 100%; border-collapse: collapse; margin: .55rem 0; font-size: .76rem; }
+  th, td { padding: .42rem .5rem; border-bottom: 1px solid #eef1f8; text-align: left; vertical-align: top; }
+  th { background: #f7f9ff; color: #475569; font-size: .62rem; font-weight: 850; letter-spacing: .04em; text-transform: uppercase; }
+  tr:last-child td { border-bottom: 0; }
+  .tag { display: inline-block; padding: .08rem .38rem; border-radius: 99px; background: var(--indigo-soft); color: #3730a3; font-size: .6rem; font-weight: 800; white-space: nowrap; }
+  .tag.ok { background: #ecfdf5; color: var(--green); }
+  .tag.warn { background: #fff8e8; color: var(--amber); }
+  .tag.off { background: #f1f5f9; color: #64748b; }
+  .tag.red { background: #fef2f2; color: var(--red); }
+  pre.diagram {
+    margin: .6rem 0; padding: .9rem 1rem; overflow: auto;
+    border: 1px solid #dbe4fb; border-radius: .75rem;
+    background: #0b1224; color: #dbeafe; font-size: .72rem; line-height: 1.5;
+  }
+  .flow { display: grid; gap: .35rem; margin: .5rem 0; padding-left: 0; list-style: none; counter-reset: paso; }
+  .flow li { position: relative; padding: .42rem .55rem .42rem 2rem; border: 1px solid #eef1f8; border-radius: .55rem; background: #fbfcff; font-size: .77rem; }
+  .flow li::before {
+    counter-increment: paso; content: counter(paso);
+    position: absolute; left: .55rem; top: .42rem;
+    display: grid; place-items: center; width: 1.05rem; height: 1.05rem;
+    border-radius: 50%; background: var(--indigo); color: #fff; font-size: .56rem; font-weight: 800;
+  }
+  .relations { display: grid; gap: .45rem; }
+  .relation { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; font-size: .78rem; }
+  .relation .node { padding: .2rem .55rem; border: 1px solid #dbe4fb; border-radius: 99px; background: #f8faff; font-weight: 700; }
+  .relation .arrow { color: #94a3b8; font-weight: 800; }
+  .note { padding: .55rem .7rem; border-left: 3px solid #c7d2fe; border-radius: .4rem; background: #f8faff; color: #475569; font-size: .76rem; }
+  .note.warn { border-left-color: #f1d38b; background: #fff8e8; color: #8a5a12; }
+  .note.danger { border-left-color: #fca5a5; background: #fef2f2; color: #991b1b; }
+  .two { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: .8rem; }
+  .mono { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: .72rem; }
+  footer { margin-top: 1rem; color: #94a3b8; font-size: .7rem; text-align: center; }
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; }
+    aside { position: static; height: auto; border-right: 0; border-bottom: 1px solid var(--line); }
+    nav { grid-template-columns: 1fr 1fr; }
+    main { padding-top: 1.2rem; }
+  }
+  @media print {
+    aside, .search { display: none; }
+    .layout { display: block; }
+    main { max-width: none; padding: 0; }
+    section { break-inside: avoid; box-shadow: none; }
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+  <aside>
+    <div class="brand">
+      <span class="logo">⚡</span>
+      <div><strong>FacturaPro</strong><small>DOCUMENTACIÓN MAESTRA</small></div>
+    </div>
+    <p class="version">Actualizado 19/11/2026 · v2.0</p>
+    <input id="buscar" class="search" type="search" placeholder="Buscar en la documentación…" autocomplete="off" />
+    <nav id="indice">
+      <a href="#resumen">1 · Resumen</a>
+      <a href="#arquitectura">2 · Arquitectura</a>
+      <div class="group">Pantallas</div>
+      <a href="#shell">Shell y notificaciones</a>
+      <a href="#login">Login e Inicio</a>
+      <a href="#multifacturador">Multifacturador</a>
+      <a href="#servicios">Servicios</a>
+      <a href="#cobranza">Cobranza</a>
+      <a href="#tickets">Tickets</a>
+      <a href="#seguimientos">Seguimientos</a>
+      <a href="#configuracion">Configuración</a>
+      <a href="#portal">Portal público</a>
+      <a href="#clientes">Clientes (demo)</a>
+      <div class="group">Sistema</div>
+      <a href="#relaciones">Relaciones</a>
+      <a href="#flujos">Flujos</a>
+      <a href="#api">API</a>
+      <a href="#datos">Datos</a>
+      <a href="#seguridad">Permisos y seguridad</a>
+      <a href="#estado">Estado y verificación</a>
+      <a href="#decisiones">Decisiones y retiros</a>
+      <a href="#cronologia">Cronología</a>
+      <a href="#glosario">Glosario</a>
+      <a href="#actualizar">Cómo actualizar</a>
+      <a href="#documentos">Documentos relacionados</a>
+    </nav>
+  </aside>
+
+  <main>
+    <header class="hero">
+      <p class="kicker">CRM · FACTURACIÓN · COBRANZA · TICKETS</p>
+      <h1>Documentación Maestra</h1>
+      <p class="lead">
+        Estado actual del CRM FacturaPro, ordenado por pantalla, con sus relaciones,
+        flujos, endpoints, datos y decisiones. Esta es la referencia para trabajar
+        sobre el proyecto sin releer todo el código.
+      </p>
+    </header>
+
+    <section id="resumen">
+      <h2>1 · Resumen</h2>
+      <p class="sub">Qué es el sistema, qué módulos están implementados y cuál es su estado.</p>
+      <div class="grid">
+        <div class="card">
+          <strong>Objetivo</strong>
+          <p>Centralizar servicios facturables, facturación, cobranza, tickets internos y seguimiento de cobranza en un único CRM.</p>
+        </div>
+        <div class="card">
+          <strong>Stack</strong>
+          <p>SvelteKit 3 + Svelte 5 (cliente), SvelteKit API + PostgreSQL 17 + Drizzle ORM (servidor), Better Auth con OTP por email.</p>
+        </div>
+        <div class="card">
+          <strong>Correo</strong>
+          <p>SMTP para cobranza y cuentas de envío. Gmail API con OAuth para tickets y seguimientos, con hilo y lectura de respuestas.</p>
+        </div>
+        <div class="card">
+          <strong>Entornos</strong>
+          <p>Desarrollo con <code>lanzador-directo.bat</code> (Vite + PostgreSQL nativo). Producción con <code>iniciar.bat</code> (Podman, adapter-node).</p>
+        </div>
+      </div>
+
+      <h3>Pantallas implementadas</h3>
+      <table>
+        <thead><tr><th>Pantalla</th><th>Ruta</th><th>Objetivo</th><th>Estado</th></tr></thead>
+        <tbody>
+          <tr><td>Login</td><td><code>/</code></td><td>Acceso con OTP al correo, sin contraseña.</td><td><span class="tag ok">Activa</span></td></tr>
+          <tr><td>Inicio</td><td><code>/principal</code></td><td>Bienvenida y estado del sistema.</td><td><span class="tag ok">Activa</span></td></tr>
+          <tr><td>Multifacturador</td><td><code>/multifacturacion</code></td><td>Plantillas, Facturador y Bandeja en una sola pantalla.</td><td><span class="tag ok">Activa</span></td></tr>
+          <tr><td>Servicios</td><td><code>/servicios</code></td><td>Alta, importación y edición de servicios facturables.</td><td><span class="tag ok">Activa</span></td></tr>
+          <tr><td>Cobranza</td><td><code>/cobranza</code></td><td>Cartera, comprobantes, envíos, grupos y exclusiones.</td><td><span class="tag ok">Activa</span></td></tr>
+          <tr><td>Tickets</td><td><code>/tickets</code></td><td>Conversaciones internas con correo, participantes y auditoría.</td><td><span class="tag ok">Activa</span></td></tr>
+          <tr><td>Seguimientos</td><td><code>/seguimientos</code></td><td>Casos de cobranza por servicio, historial, tareas y promesas.</td><td><span class="tag ok">Activa</span></td></tr>
+          <tr><td>Configuración</td><td><code>/configuracion</code></td><td>Catálogos, grupos, apariencia, facturación, correo y usuarios.</td><td><span class="tag ok">Activa</span></td></tr>
+          <tr><td>Portal público</td><td><code>/portal/[token]</code></td><td>Ver y responder un ticket sin login mientras no esté cerrado ni cancelado.</td><td><span class="tag ok">Activa</span></td></tr>
+          <tr><td>Clientes</td><td><code>/clientes</code></td><td>CRUD de demostración, no es el maestro de servicios.</td><td><span class="tag warn">Demo</span></td></tr>
+        </tbody>
+      </table>
+
+      <h3>Qué está resuelto</h3>
+      <ul class="lista">
+        <li>Facturación por plantillas, período, variables, Facturador y Bandeja con exportación.</li>
+        <li>Cobranza con importación de planilla, tramos de deuda, alertas visuales, envíos SMTP y agrupaciones.</li>
+        <li>Notificaciones globales en la campana del Banner, con deep link al ticket o seguimiento.</li>
+        <li>Tickets con chat estilo WhatsApp, correo por destinatario, enlace público y visibilidad interna.</li>
+        <li>Seguimientos de cobranza con historial, tareas, promesas, facturas, tickets vinculados y correo.</li>
+        <li>Gmail API con OAuth, múltiples cuentas, sondeo, lectura de respuestas y deduplicación de enviados.</li>
+        <li>Permisos por rol, área y pantalla; endpoints filtrados por permiso.</li>
+      </ul>
+
+      <h3>Límites actuales</h3>
+      <ul class="lista">
+        <li><strong>Clientes</strong> sigue siendo un CRUD de demostración.</li>
+        <li>Los mensajes de tickets anteriores al flag de visibilidad quedaron visibles por defecto: marcar como <strong>Solo interno</strong> lo que no deba salir al portal.</li>
+        <li>El portal público no tiene OTP: la identidad es el token por destinatario. Si el correo se reenvía, el link viaja.</li>
+        <li>El snapshot de Drizzle no se regeneró después de las migraciones custom 0040 y 0041.</li>
+        <li>No hay adjuntos en el portal ni en el correo del ticket.</li>
+      </ul>
+    </section>
+
+    <section id="arquitectura">
+      <h2>2 · Arquitectura</h2>
+      <p class="sub">Dos proyectos SvelteKit unidos por el proxy <code>/api/*</code>.</p>
+      <pre class="diagram">Navegador
+  │  :5173 dev  /  :4173 prod
+  ▼
+cliente (SvelteKit + Svelte 5)
+  ├─ rutas (app): pantallas autenticadas
+  ├─ ruta pública /portal/[token]
+  └─ proxy /api/*  ─────────────►  servidor (SvelteKit API, :8080)
+                                       ├─ hooks: sesión + permisos
+                                       ├─ rutas /api/*
+                                       ├─ repositorios (reglas)
+                                       ├─ validaciones Zod
+                                       └─ Drizzle ──► PostgreSQL 17
+                                                          ▲
+Gmail API / SMTP ─────────────────────────────────────────┘
+  (OAuth, envío, sondeo, Pub/Sub opcional)</pre>
+
+      <h3>Capas</h3>
+      <table>
+        <thead><tr><th>Capa</th><th>Responsabilidad</th><th>Ubicación</th></tr></thead>
+        <tbody>
+          <tr><td>Rutas</td><td>Entrada, layouts, guardas y proxy.</td><td><code>cliente/src/routes</code></td></tr>
+          <tr><td>Pantallas</td><td>Composición y estado de cada pantalla.</td><td><code>cliente/src/lib/pantallas</code></td></tr>
+          <tr><td>Componentes</td><td>UI reutilizable: Banner, menú, campana, modales, inputs.</td><td><code>cliente/src/lib/componentes</code></td></tr>
+          <tr><td>Servicios de datos</td><td>Llamadas tipadas al proxy y transformación.</td><td><code>cliente/src/lib/servicios-datos-api</code></td></tr>
+          <tr><td>API</td><td>Endpoints, validación y códigos HTTP.</td><td><code>servidor/src/routes/api</code></td></tr>
+          <tr><td>Repositorios</td><td>Reglas de negocio y transacciones.</td><td><code>servidor/src/lib/server/repositorios</code></td></tr>
+          <tr><td>Datos</td><td>Esquema Drizzle, conexión y migraciones.</td><td><code>servidor/src/lib/server/base-datos</code></td></tr>
+          <tr><td>Permisos</td><td>Catálogo de pantallas, claves API y evaluación.</td><td><code>servidor/src/lib/server/permisos</code></td></tr>
+        </tbody>
+      </table>
+
+      <h3>Entornos</h3>
+      <div class="two">
+        <div class="card">
+          <strong>Desarrollo</strong>
+          <p><code>lanzador-directo.bat</code> levanta API en <code>8080</code> y frontend en <code>5173</code>. Lee <code>lanzador-directo.env</code> y propaga también las variables <code>GMAIL_*</code>.</p>
+        </div>
+        <div class="card">
+          <strong>Producción</strong>
+          <p><code>iniciar.bat</code> usa Podman: pod <code>crm-backend</code> (API + PostgreSQL) y <code>crm-frontend</code> (<code>4173</code>). Inyecta SMTP, Gmail y <code>CORREO_CLAVE</code> desde <code>servidor/.env</code>.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="shell">
+      <h2>Shell y notificaciones</h2>
+      <p class="sub">Presente en todas las rutas autenticadas.</p>
+      <div class="two">
+        <div class="card">
+          <strong>Banner</strong>
+          <p>Marca, campana global y avatar. La campana es el único centro de notificaciones: badge, popover, polling 25 s, pausa con pestaña oculta y “Marcar todas”.</p>
+        </div>
+        <div class="card">
+          <strong>Menú lateral</strong>
+          <p>Colapsado 88 px; expandido 270 px al pasar el mouse. El contenido se corre 270 px para no quedar debajo. En móvil se superpone.</p>
+        </div>
+      </div>
+      <h3>Notificaciones</h3>
+      <ul class="lista">
+        <li>Agrega <code>ticket_notificaciones</code> y <code>seguimientos_notificaciones</code>.</li>
+        <li>Filtra por permiso: sin <code>tickets</code> no devuelve avisos de tickets; sin <code>seguimientos</code>, no devuelve de seguimientos.</li>
+        <li>Cada ítem lleva URL resuelta: <code>/tickets?ticket=TCK-…</code> o <code>/seguimientos?seg=…</code>.</li>
+        <li>Al hacer clic se marca leída y se navega; el detalle reacciona al query param incluso si ya estaba abierto.</li>
+      </ul>
+
+      <h3>Temas</h3>
+      <ul class="lista">
+        <li>Oscuro por defecto; el claro conserva la paleta original. Se elige en Configuración → Apariencia.</li>
+        <li><code>app.html</code> fija <code>data-tema</code> antes del primer paint y guarda la elección en <code>localStorage</code> (<code>crm-tema</code>), sin parpadeo.</li>
+        <li>Tokens en <code>lib/estilos/tema-oscuro.css</code> y <code>tema-claro.css</code>; los componentes usan variables semánticas y no colores de un modo.</li>
+        <li>La apariencia de filas configurada en la base se aplica solo en claro; en oscuro mandan los tokens del tema.</li>
+        <li>Los modales usan <code>--sombra-modal</code>: en oscuro, un borde blanco difuminado de 2 px y un halo suave sobre la sombra profunda.</li>
+      </ul>
+
+      <h3>Controles</h3>
+      <ul class="lista">
+        <li>Selects: etiqueta arriba con 1 px de separación, 0.6 rem, mayúsculas y color suave; control con borde de 1 px, radio 0.7 rem y chevron propio.</li>
+        <li>Los filtros de Tickets, Seguimientos y Cobranza usan el menú propio de <code>ChipSelect</code> (opción activa destacada), no el menú nativo del sistema. Los campos de formulario mantienen el mismo control y el menú del sistema.</li>
+        <li>En Cobranza los filtros comparten una sola línea en escritorio; la búsqueda se achica y por debajo de 1280 px el bloque pasa a varias líneas.</li>
+      </ul>
+    </section>
+
+    <section id="login">
+      <h2>Login e Inicio</h2>
+      <p class="sub">Acceso sin contraseña y pantalla de bienvenida.</p>
+      <div class="two">
+        <div class="card">
+          <strong>Login <code>/</code></strong>
+          <p>OTP por email vía SMTP. La sesión se guarda en cookie host-only y se valida en cada request. El login es la única ruta pública junto con el portal.</p>
+        </div>
+        <div class="card">
+          <strong>Inicio <code>/principal</code></strong>
+          <p>Tarjeta de bienvenida, accesos y estado del sistema. No contiene lógica de negocio.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="multifacturador">
+      <h2>Multifacturador</h2>
+      <p class="sub"><code>/multifacturacion</code> · pestañas Plantillas, Facturador y Bandeja.</p>
+      <div class="grid">
+        <div class="card">
+          <strong>Plantillas</strong>
+          <p>Importación Excel desde un modal con dos acciones: descargar la plantilla modelo (17 encabezados y 4 filas de ejemplo) o subir la planilla. Catálogos validados, reimportación idempotente, edición inline, chips, líneas y borrado lógico. Se envían al Facturador por período.</p>
+        </div>
+        <div class="card">
+          <strong>Facturador</strong>
+          <p>Copias de plantillas con período y fecha general persistidos en <code>configuracion_facturacion</code>. Variables con último valor, panel flotante y sustitución en comentarios.</p>
+        </div>
+        <div class="card">
+          <strong>Bandeja</strong>
+          <p>Solo facturas en <code>BANDEJA</code>. Orden manual, prioridad, exportación xlsx, histórico de enviados y devolución al Facturador.</p>
+        </div>
+      </div>
+      <h3>Flujo</h3>
+      <ol class="flow">
+        <li>Descargar la plantilla modelo o importar el Excel y editar plantillas y líneas.</li>
+        <li>Configurar período y fecha general en Facturador.</li>
+        <li>Completar variables y enviar el lote al Facturador.</li>
+        <li>Revisar en Bandeja y exportar al facturador externo.</li>
+        <li>Marcar facturado/cobrado; el histórico queda en “Enviados a facturar”.</li>
+      </ol>
+      <p class="note">Relación: una plantilla pertenece a un servicio; las facturas conservan el servicio y sus líneas. La exportación no crea CFDIs reales: prepara el archivo para el facturador externo.</p>
+    </section>
+
+    <section id="servicios">
+      <h2>Servicios</h2>
+      <p class="sub"><code>/servicios</code> · maestro de servicios facturables.</p>
+      <p>Alta individual e importación, RUT/CI, numeración, grupo de facturación/cobranza, atributos de gestión, habilitado/deshabilitado y borrado lógico. La importación abre un modal con descarga de la plantilla (hoja de datos + hoja Parámetros) o carga del archivo. Es la raíz de Cobranza, Tickets y Seguimientos.</p>
+      <table>
+        <thead><tr><th>Relación</th><th>Uso</th></tr></thead>
+        <tbody>
+          <tr><td>Servicio → comprobantes de cobranza</td><td>La cartera se importa por servicio y período.</td></tr>
+          <tr><td>Servicio → tickets</td><td>Un ticket puede vincularse a un servicio.</td></tr>
+          <tr><td>Servicio → seguimientos</td><td>Cada caso de cobranza pertenece a un servicio.</td></tr>
+          <tr><td>Servicio → emails</td><td>Los correos de cobranza y contactos cuelgan del servicio.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="cobranza">
+      <h2>Cobranza</h2>
+      <p class="sub"><code>/cobranza</code> · cartera, comprobantes, envíos y grupos.</p>
+      <div class="grid">
+        <div class="card">
+          <strong>Importación</strong>
+          <p>Planilla desde encabezados, período mensual, validación por fila, servicios faltantes con planilla auxiliar y reimportación que retira lógicamente los ausentes. El modal permite descargar la plantilla (encabezados en la fila 5 y 4 ejemplos) y aclara que el origen es el reporte de facturas pendientes de cobro de Zureo Go.</p>
+        </div>
+        <div class="card">
+          <strong>Cartera</strong>
+          <p>Selección, alerta de mora, envíos, servicio/contacto, cuatro tramos en pesos, cuatro en dólares y equivalente. Sin scroll horizontal por defecto; cada fila abre el detalle de deuda.</p>
+        </div>
+        <div class="card">
+          <strong>Envíos</strong>
+          <p>SMTP con cuentas y alias, plantillas, envío inmediato o masivo, historial, contador de envíos, exclusión por comprobante y borrado lógico persistente.</p>
+        </div>
+        <div class="card">
+          <strong>Alertas de mora</strong>
+          <p>Iconos SVG: círculo amarillo, círculo naranja y triángulo rojo según el tramo de deuda más antigua. Se muestran en la columna de alerta.</p>
+        </div>
+      </div>
+      <h3>Flujo</h3>
+      <ol class="flow">
+        <li>Descargar la plantilla o importar la cartera del período y validar filas/errores.</li>
+        <li>Resolver servicios faltantes o excluir comprobantes con motivo.</li>
+        <li>Seleccionar servicios y enviar estado de cuenta o crear lote masivo.</li>
+        <li>Consultar historial, envíos confirmados y exclusiones.</li>
+      </ol>
+    </section>
+
+    <section id="tickets">
+      <h2>Tickets</h2>
+      <p class="sub"><code>/tickets</code> · conversación interna con correo y portal público.</p>
+      <div class="grid">
+        <div class="card">
+          <strong>Lista</strong>
+          <p>Filtros por texto, estado, prioridad, área y origen; tarjetas compactas de tres líneas con código, estado y origen en la primera línea, avatares a la derecha, título y servicio; la prioridad queda al final de la línea de servicio. El filtro de estado arranca en <strong>Todos los activos</strong> (Nuevo, Abierto, En proceso y Esperando respuesta); Cerrado, Cancelado y Resuelto quedan fuera hasta elegirlos.</p>
+        </div>
+        <div class="card">
+          <strong>Detalle</strong>
+          <p>Al seleccionar, el detalle se carga en la columna derecha y la lista se mantiene; el chat hace auto-scroll al último mensaje. El historial deja 100 px de aire al final para que el compositor no tape el último mensaje.</p>
+        </div>
+        <div class="card">
+          <strong>Chat</strong>
+          <p>Solo mensajes enviados/recibidos, sin tarjetas de eventos (auditoría aparte). Burbujas claras, avatar externo, nombre/área/hora y “Vía correo/portal/app”.</p>
+        </div>
+        <div class="card">
+          <strong>Correo</strong>
+          <p>Se envía un correo por destinatario (To + CC deduplicados), con link público propio. Está activo por defecto; se puede destildar para notificar solo en la campana. “Solo interno” también lo desactiva. Reply-To <code>cuenta+código@dominio</code>. Las respuestas se mapean al ticket.</p>
+        </div>
+        <div class="card">
+          <strong>Visibilidad</strong>
+          <p><strong>Solo interno</strong> no se envía por correo ni aparece en el portal. El portal solo muestra <code>visible_cliente = true</code>.</p>
+        </div>
+        <div class="card">
+          <strong>Auditoría y correo</strong>
+          <p>Pestañas Contexto, Auditoría y Correo. La auditoría conserva creación, estados, asignaciones y respuestas; el chat no las repite.</p>
+        </div>
+      </div>
+      <h3>Flujo de respuesta</h3>
+      <ol class="flow">
+        <li>Se escribe el mensaje y se elige si es interno o si sale por correo.</li>
+        <li>Si sale por correo, se resuelven menciones y participantes antes de enviar.</li>
+        <li>Se envía un mail por destinatario con su token de portal y el hilo del ticket.</li>
+        <li>El destinatario responde por correo o por el portal; ambas vías entran al mismo hilo.</li>
+        <li>Se notifica a los involucrados en la campana.</li>
+      </ol>
+    </section>
+
+    <section id="seguimientos">
+      <h2>Seguimientos de cobranza</h2>
+      <p class="sub"><code>/seguimientos</code> · casos por servicio, historial y próximos pasos.</p>
+      <div class="grid">
+        <div class="card">
+          <strong>Lista</strong>
+          <p>Casos activos o cerrados, filtros por estado, responsable, servicio, ticket y prioridad. Cada tarjeta muestra el servicio y su código, el estado a la derecha y el título del caso; el saldo y el próximo paso están en el detalle.</p>
+        </div>
+        <div class="card">
+          <strong>Detalle</strong>
+          <p>Resumen de saldo, facturas, promesa vigente, último contacto y canal. Al seleccionar, el detalle se carga en la columna derecha y la lista se mantiene. El compositor queda como pie fijo del detalle y el historial scrollea por separado, así la nota interna no queda tapada.</p>
+        </div>
+        <div class="card">
+          <strong>Historial</strong>
+          <p>Conversación con burbujas por canal (correo, teléfono, WhatsApp, reunión, nota), eventos del sistema, tareas y promesas. Icono de canal fuera de la burbuja.</p>
+        </div>
+        <div class="card">
+          <strong>Gestión</strong>
+          <p>Altas de avances, tareas, promesas, facturas y tickets vinculados. El correo puede enviarse por Gmail o registrarse sin enviar.</p>
+        </div>
+      </div>
+      <p class="note">La tarjeta “Tickets” y la lista de tickets vinculados se quitaron del detalle. Quedan el filtro “Ticket” y la acción “Crear ticket”.</p>
+      <h3>Relaciones</h3>
+      <table>
+        <thead><tr><th>Entidad</th><th>Relación</th></tr></thead>
+        <tbody>
+          <tr><td>Servicio</td><td>1 → N seguimientos; los casos del mismo servicio no comparten historial.</td></tr>
+          <tr><td>Facturas</td><td>N → M; los comprobantes se asocian y se pueden retirar.</td></tr>
+          <tr><td>Tickets</td><td>N → M mediante <code>seguimientos_tickets</code>; el ticket conserva su conversación.</td></tr>
+          <tr><td>Correos</td><td>Entrantes/salientes con <code>thread_id</code>, <code>Message-ID</code> y estado de vinculación.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="configuracion">
+      <h2>Configuración</h2>
+      <p class="sub"><code>/configuracion</code> · catálogos, grupos, apariencia, facturación, correo y usuarios.</p>
+      <table>
+        <thead><tr><th>Pestaña</th><th>Qué resuelve</th></tr></thead>
+        <tbody>
+          <tr><td>Catálogos</td><td>Tipos, monedas, grupos y valores usados por facturación y cobranza.</td></tr>
+          <tr><td>Grupos</td><td>Grupos de facturación y cobranza con color.</td></tr>
+          <tr><td>Apariencia</td><td>Tema de la interfaz (oscuro por defecto o claro), colores de filas, líneas y espaciado de tablas/listas.</td></tr>
+          <tr><td>Facturación</td><td>Serie, período y fecha general del Facturador.</td></tr>
+          <tr><td>Correo</td><td>Cuentas SMTP con alias y clave cifrada; Gmail API/OAuth con múltiples cuentas, verificación y sincronización.</td></tr>
+          <tr><td>Usuarios</td><td>Altas, áreas, rol, permisos por pantalla y bajas.</td></tr>
+        </tbody>
+      </table>
+      <h3>Gmail OAuth</h3>
+      <ul class="lista">
+        <li>“Conectar Gmail” abre el consentimiento con <code>prompt=select_account consent</code>, para sumar varias casillas.</li>
+        <li>El callback guarda tokens cifrados y asigna la casilla al área del usuario que la conecta.</li>
+        <li>El sondeo corre cada <code>GMAIL_SYNC_INTERVALO_MINUTOS</code> (2 por defecto); Pub/Sub es opcional.</li>
+        <li>Los envíos de ticket salen por Gmail si hay cuenta disponible; si no, por SMTP.</li>
+      </ul>
+    </section>
+
+    <section id="portal">
+      <h2>Portal público del ticket</h2>
+      <p class="sub"><code>/portal/[token]</code> · sin login, bloqueado si el ticket está cerrado o cancelado.</p>
+      <p>El correo del ticket incluye un botón <strong>“Ver y responder en el ticket”</strong>. Cada destinatario recibe un token propio; el portal identifica el email del token, resuelve su nombre y no le pide nombre ni email.</p>
+      <div class="two">
+        <div class="card">
+          <strong>Qué muestra</strong>
+          <ul>
+            <li>Código, título y estado.</li>
+            <li>Solo mensajes con <code>visible_cliente = true</code>.</li>
+            <li>Conversación en orden, con citas de correo limpias.</li>
+            <li>Composer para responder; si el enlace identifica al destinatario, muestra “Respondés como …” y no pide nombre ni email.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <strong>Qué no permite</strong>
+          <ul>
+            <li>Cambiar estado, prioridad, área o cerrar.</li>
+            <li>Ver otros tickets, auditoría, participantes o adjuntos.</li>
+            <li>Ver mensajes ni responder si el ticket está cerrado o cancelado.</li>
+            <li>Ver emails de remitentes externos.</li>
+          </ul>
+        </div>
+      </div>
+      <h3>Controles</h3>
+      <ul class="lista">
+        <li>Token de 32 bytes, guardado como SHA-256; expira a los 30 días.</li>
+        <li>Un token por destinatario; la tabla admite <code>email</code> y revocación.</li>
+        <li>Rate limit 20 respuestas/10 min por token+IP (en memoria del proceso), honeypot y límites de tamaño.</li>
+        <li>Respuesta guardada como <code>canal = PORTAL</code>, <code>visible_cliente = true</code>; notifica a los involucrados.</li>
+        <li>Cabeceras <code>no-store</code>, <code>no-referrer</code>, <code>noindex</code>.</li>
+      </ul>
+      <p class="note warn">Un link es una capability URL: si el correo se reenvía, el link viaja. No hay OTP por el momento; la identidad es la casilla a la que se envió el token.</p>
+    </section>
+
+    <section id="clientes">
+      <h2>Clientes (demo)</h2>
+      <p><code>/clientes</code> es un CRUD de nombre/email/teléfono, útil como prueba de API y salud. No es el maestro de servicios facturables. Para el negocio, la entidad real es <strong>Servicios</strong>.</p>
+    </section>
+
+    <section id="relaciones">
+      <h2>Relaciones entre módulos</h2>
+      <p class="sub">Cómo se conectan las pantallas y los datos.</p>
+      <div class="relations">
+        <div class="relation"><span class="node">Servicios</span><span class="arrow">→</span><span class="node">Cobranza</span><span>comprobantes y envíos</span></div>
+        <div class="relation"><span class="node">Servicios</span><span class="arrow">→</span><span class="node">Tickets</span><span>servicio vinculado</span></div>
+        <div class="relation"><span class="node">Servicios</span><span class="arrow">→</span><span class="node">Seguimientos</span><span>casos de cobranza</span></div>
+        <div class="relation"><span class="node">Tickets</span><span class="arrow">↔</span><span class="node">Seguimientos</span><span>tickets vinculados</span></div>
+        <div class="relation"><span class="node">Tickets</span><span class="arrow">↔</span><span class="node">Gmail</span><span>correo por destinatario y respuestas</span></div>
+        <div class="relation"><span class="node">Seguimientos</span><span class="arrow">↔</span><span class="node">Gmail</span><span>correo e hilo</span></div>
+        <div class="relation"><span class="node">Tickets / Seguimientos</span><span class="arrow">→</span><span class="node">Notificaciones</span><span>campana global</span></div>
+        <div class="relation"><span class="node">Ticket</span><span class="arrow">→</span><span class="node">Portal público</span><span>token por destinatario</span></div>
+        <div class="relation"><span class="node">Cobranza</span><span class="arrow">→</span><span class="node">SMTP</span><span>estados de cuenta</span></div>
+      </div>
+    </section>
+
+    <section id="flujos">
+      <h2>Flujos e invariantes</h2>
+      <p class="sub">Los caminos críticos, de punta a punta.</p>
+
+      <h3>1 · Login</h3>
+      <ol class="flow">
+        <li>El usuario ingresa su email en <code>/</code>.</li>
+        <li>La API envía un OTP por SMTP y lo imprime en consola si no hay SMTP.</li>
+        <li>Se valida el código; Better Auth crea la sesión y la cookie host-only.</li>
+        <li>El layout autenticado carga usuario, pantallas y permisos.</li>
+      </ol>
+
+      <h3>2 · Notificaciones</h3>
+      <ol class="flow">
+        <li>Se genera una fila en <code>ticket_notificaciones</code> o <code>seguimientos_notificaciones</code>.</li>
+        <li>La campana pide <code>GET /api/notificaciones</code> cada 25 s (pausa si la pestaña está oculta).</li>
+        <li>El backend agrega solo los módulos permitidos y devuelve URLs de deep link.</li>
+        <li>El clic marca leída, navega y el detalle reacciona al query param.</li>
+      </ol>
+
+      <h3>3 · Ticket y correo saliente</h3>
+      <ol class="flow">
+        <li>Se crea el ticket con servicio o interno, área responsable, prioridad y mensaje.</li>
+        <li>Al responder, se resuelven menciones y se agregan participantes antes de enviar.</li>
+        <li>Si se marca “Correo a involucrados”, se deduplican To + CC y se envía un mail por destinatario.</li>
+        <li>Cada mail lleva su token de portal, Reply-To <code>cuenta+código@dominio</code> y el mismo hilo.</li>
+        <li>Se guarda un registro por envío en <code>ticket_correo_envios</code> para deduplicar el sondeo.</li>
+      </ol>
+
+      <h3>4 · Correo entrante</h3>
+      <ol class="flow">
+        <li>El sondeo de Gmail lee la bandeja y el historial.</li>
+        <li>Se descartan copias propias por <code>gmail_message_id</code> y <code>Message-ID</code>.</li>
+        <li>Se vincula por thread, In-Reply-To/References, alias +SEG/+TCK o código en el asunto.</li>
+        <li>Si no hay coincidencia segura, queda en “Correos sin vincular”.</li>
+        <li>La respuesta entra al ticket/seguimiento, se limpia la cita y se notifica.</li>
+      </ol>
+
+      <h3>5 · Portal público</h3>
+      <ol class="flow">
+        <li>El invitado abre el link del correo.</li>
+        <li>La API valida token, expiración y estado del ticket.</li>
+        <li>El portal muestra solo mensajes visibles y el composer.</li>
+        <li>La respuesta se guarda como <code>PORTAL</code> con el email y el nombre del token. Si el enlace no identifica a nadie, el invitado escribe nombre y email.</li>
+        <li>Se actualiza la versión del ticket y se notifica a los involucrados.</li>
+      </ol>
+
+      <h3>6 · Seguimiento de cobranza</h3>
+      <ol class="flow">
+        <li>Se elige un servicio con deuda y se crea el caso.</li>
+        <li>Se registran avances, tareas, promesas y facturas.</li>
+        <li>Se envía correo por Gmail o SMTP; las respuestas vuelven al historial.</li>
+        <li>Se puede crear un ticket vinculado y consultar su estado.</li>
+      </ol>
+
+      <h3>7 · Cobranza</h3>
+      <ol class="flow">
+        <li>Importar la planilla del período.</li>
+        <li>Validar filas y resolver servicios faltantes.</li>
+        <li>Seleccionar servicios y enviar estado de cuenta o crear lote masivo.</li>
+        <li>Consultar historial, exclusiones y alertas de mora.</li>
+      </ol>
+
+      <p class="note">Invariantes: un ticket cerrado no admite respuestas; un seguimiento cerrado no admite envíos; los mensajes internos nunca salen al portal; el portal no cambia estado ni datos del ticket.</p>
+    </section>
+
+    <section id="api">
+      <h2>API</h2>
+      <p class="sub">Endpoints principales agrupados por módulo. Swagger en <code>/api/docs</code> y OpenAPI en <code>/api/openapi.json</code>.</p>
+
+      <h3>Auth y sesión</h3>
+      <table>
+        <thead><tr><th>Método</th><th>Ruta</th><th>Uso</th></tr></thead>
+        <tbody>
+          <tr><td>GET/POST</td><td><code>/api/auth/*</code></td><td>OTP y sesión de Better Auth.</td></tr>
+          <tr><td>GET</td><td><code>/api/sesion</code></td><td>Usuario, rol, área, permisos y pantallas.</td></tr>
+          <tr><td>GET</td><td><code>/api/permisos/catalogo</code></td><td>Catálogo de permisos para administración.</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Notificaciones</h3>
+      <table>
+        <thead><tr><th>Método</th><th>Ruta</th><th>Uso</th></tr></thead>
+        <tbody>
+          <tr><td>GET</td><td><code>/api/notificaciones</code></td><td>Agregado de tickets + seguimientos, filtrado por permiso.</td></tr>
+          <tr><td>POST</td><td><code>/api/notificaciones/leer</code></td><td>Marca una (<code>origen</code> + <code>id</code>).</td></tr>
+          <tr><td>POST</td><td><code>/api/notificaciones/leidas</code></td><td>Marca todas las permitidas.</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Tickets</h3>
+      <table>
+        <thead><tr><th>Método</th><th>Ruta</th><th>Uso</th></tr></thead>
+        <tbody>
+          <tr><td>GET/POST</td><td><code>/api/tickets</code></td><td>Listado con filtros / creación.</td></tr>
+          <tr><td>GET/PATCH</td><td><code>/api/tickets/[id]</code></td><td>Detalle y cambios de estado, prioridad, área, asignación, etc.</td></tr>
+          <tr><td>POST</td><td><code>/api/tickets/[id]/mensajes</code></td><td>Respuesta; email, visibilidad y menciones.</td></tr>
+          <tr><td>GET/POST/DELETE</td><td><code>/api/tickets/[id]/participantes</code></td><td>Participantes del ticket.</td></tr>
+          <tr><td>POST</td><td><code>/api/tickets/[id]/correo</code></td><td>Correo independiente del hilo. Sin uso en la UI actual, que envía desde el composer.</td></tr>
+          <tr><td>GET</td><td><code>/api/tickets/catalogos</code></td><td>Áreas, usuarios, categorías.</td></tr>
+          <tr><td>GET</td><td><code>/api/tickets/servicios</code></td><td>Búsqueda de servicios para vincular.</td></tr>
+          <tr><td>GET</td><td><code>/api/tickets/cuentas-gmail</code></td><td>Cuentas disponibles para enviar.</td></tr>
+          <tr><td>GET</td><td><code>/api/tickets/notificaciones</code></td><td>Endpoint histórico por módulo; la campana usa el general.</td></tr>
+          <tr><td>GET/POST</td><td><code>/api/tickets/portal/[token]</code></td><td>Público: conversación y respuesta del invitado.</td></tr>
+          <tr><td>POST</td><td><code>/api/webhooks/tickets/[id]/correo</code></td><td>Webhook de correo entrante (secreto).</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Seguimientos</h3>
+      <table>
+        <thead><tr><th>Método</th><th>Ruta</th><th>Uso</th></tr></thead>
+        <tbody>
+          <tr><td>GET/POST</td><td><code>/api/seguimientos</code></td><td>Listado / alta.</td></tr>
+          <tr><td>GET/PATCH</td><td><code>/api/seguimientos/[id]</code></td><td>Detalle y cambios.</td></tr>
+          <tr><td>POST</td><td><code>/api/seguimientos/[id]/eventos</code></td><td>Avances y notas.</td></tr>
+          <tr><td>POST</td><td><code>/api/seguimientos/[id]/correo</code></td><td>Correo Gmail/SMTP o registro manual.</td></tr>
+          <tr><td>CRUD</td><td><code>/api/seguimientos/[id]/tareas</code></td><td>Tareas y próximas gestiones.</td></tr>
+          <tr><td>CRUD</td><td><code>/api/seguimientos/[id]/promesas</code></td><td>Promesas de pago.</td></tr>
+          <tr><td>GET/POST/DELETE</td><td><code>/api/seguimientos/[id]/facturas</code></td><td>Comprobantes del caso.</td></tr>
+          <tr><td>CRUD</td><td><code>/api/seguimientos/[id]/tickets</code></td><td>Tickets vinculados.</td></tr>
+          <tr><td>GET</td><td><code>/api/seguimientos/correos</code></td><td>Correos sin vincular.</td></tr>
+          <tr><td>GET</td><td><code>/api/seguimientos/catalogos</code> / <code>cuentas-gmail</code></td><td>Catálogos y cuentas de envío.</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Gmail</h3>
+      <table>
+        <thead><tr><th>Método</th><th>Ruta</th><th>Uso</th></tr></thead>
+        <tbody>
+          <tr><td>GET</td><td><code>/api/gmail/cuentas</code></td><td>Cuentas conectadas (sin tokens).</td></tr>
+          <tr><td>GET</td><td><code>/api/gmail/oauth/iniciar</code></td><td>Redirige al consentimiento de Google.</td></tr>
+          <tr><td>GET</td><td><code>/api/gmail/oauth/callback</code></td><td>Intercambia código y guarda tokens cifrados.</td></tr>
+          <tr><td>POST</td><td><code>/api/gmail/cuentas/[id]/verificar</code></td><td>Prueba el token.</td></tr>
+          <tr><td>POST</td><td><code>/api/gmail/cuentas/[id]/sincronizar</code> / <code>/api/gmail/sincronizar</code></td><td>Sondeo manual.</td></tr>
+          <tr><td>DELETE</td><td><code>/api/gmail/cuentas/[id]</code></td><td>Desconectar.</td></tr>
+          <tr><td>POST</td><td><code>/api/gmail/pubsub/[secreto]</code></td><td>Push opcional de Gmail.</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Cobranza, Multifacturador y configuración</h3>
+      <table>
+        <thead><tr><th>Grupo</th><th>Rutas principales</th><th>Uso</th></tr></thead>
+        <tbody>
+          <tr><td>Cobranza</td><td><code>/api/cobranza</code>, <code>/comprobantes</code>, <code>/envios</code>, <code>/envios-masivos</code>, <code>/grupos-cobranza</code>, <code>/emails/*</code>, <code>/exclusiones</code></td><td>Cartera, comprobantes, envíos y exclusiones.</td></tr>
+          <tr><td>Multifacturador</td><td><code>/api/plantillas</code>, <code>/api/facturas</code>, <code>/api/variables</code>, <code>/api/configuracion/facturacion</code></td><td>Plantillas, facturas, variables y período/fecha.</td></tr>
+          <tr><td>Servicios / Clientes</td><td><code>/api/servicios</code>, <code>/api/clientes</code></td><td>Maestro de servicios y CRUD demo.</td></tr>
+          <tr><td>Configuración</td><td><code>/api/configuracion</code>, <code>/catalogos</code>, <code>/grupos</code>, <code>/apariencia</code>, <code>/correo/cuentas</code></td><td>Catálogos, grupos, apariencia y SMTP.</td></tr>
+          <tr><td>Usuarios / áreas</td><td><code>/api/usuarios</code>, <code>/api/areas</code></td><td>Altas, bajas, permisos y restauración.</td></tr>
+        </tbody>
+      </table>
+      <p class="note">El guard de sesión protege todo <code>/api/*</code> salvo salud, docs, sesión, webhook de tickets, Pub/Sub de Gmail y el portal público. Cada ruta sensible se resuelve contra el catálogo de permisos.</p>
+    </section>
+
+    <section id="datos">
+      <h2>Datos y relaciones</h2>
+      <p class="sub">PostgreSQL 17 + Drizzle. Migraciones 0000–0041; las últimas dos son 0040 (portal/visibilidad) y 0041 (envíos por destinatario).</p>
+
+      <h3>Usuarios y permisos</h3>
+      <p><code>user</code>, <code>session</code>, <code>areas</code>, <code>permisos_usuario</code>. El rol ADMIN ve todo; el OPERADOR se limita a sus pantallas y área. Cada usuario tiene un área y permisos por pantalla.</p>
+
+      <h3>Facturación</h3>
+      <p><code>servicios</code>, <code>plantillas</code>, <code>plantillas_lineas</code>, <code>facturas</code>, <code>factura_lineas</code>, <code>variables</code>, <code>periodos_cobranza</code>, <code>configuracion_facturacion</code>, <code>catalogos</code> y grupos. Las facturas nacen de plantillas y conservan el servicio y sus líneas.</p>
+
+      <h3>Cobranza</h3>
+      <p><code>comprobantes_cobranza</code>, <code>servicios_emails</code>, <code>importaciones_emails</code>, <code>plantillas_cobranza</code>, <code>envios_cobranza</code>, <code>lotes_envio_cobranza(_items)</code>, <code>grupos_cobranza</code>, <code>exclusiones_cobranza</code>, <code>cuentas_correo</code> y alias. La clave del comprobante es servicio + tipo + serie + número.</p>
+
+      <h3>Tickets</h3>
+      <table>
+        <thead><tr><th>Tabla</th><th>Rol</th></tr></thead>
+        <tbody>
+          <tr><td><code>tickets</code></td><td>Cabecera, estado, prioridad, áreas, servicio, versión optimista.</td></tr>
+          <tr><td><code>ticket_participantes</code></td><td>Áreas y usuarios involucrados, con origen (creador, asignado, mención).</td></tr>
+          <tr><td><code>ticket_mensajes</code></td><td>Mensajes del chat; <code>canal</code> (APP/CORREO/PORTAL) y <code>visible_cliente</code>.</td></tr>
+          <tr><td><code>ticket_eventos</code></td><td>Auditoría: creación, estado, prioridad, asignación, respuestas, etc.</td></tr>
+          <tr><td><code>ticket_correos</code></td><td>Correos entrantes/salientes, hilo y Message-ID.</td></tr>
+          <tr><td><code>ticket_correo_envios</code></td><td>Una fila por destinatario enviado; deduplica el sondeo de Gmail.</td></tr>
+          <tr><td><code>ticket_lecturas</code></td><td>Última lectura por usuario para contadores.</td></tr>
+          <tr><td><code>ticket_notificaciones</code></td><td>Avisos por usuario, con <code>leido_en</code> y clave de evento.</td></tr>
+          <tr><td><code>ticket_enlaces_publicos</code></td><td>Tokens de portal: hash, email, expiración, revocación y usos.</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Seguimientos</h3>
+      <p><code>seguimientos</code>, <code>seguimientos_participantes</code>, <code>seguimientos_eventos</code>, <code>seguimientos_tareas</code>, <code>seguimientos_promesas</code>, <code>seguimientos_facturas</code>, <code>seguimientos_tickets</code>, <code>seguimientos_correos</code>, <code>seguimientos_lecturas</code> y <code>seguimientos_notificaciones</code>. Cada caso pertenece a un servicio y no comparte historial con sus hermanos.</p>
+
+      <h3>Gmail</h3>
+      <p><code>gmail_cuentas</code>: email, área, tokens cifrados, scope, <code>history_id</code>, watch, última sincronización y último error.</p>
+
+      <h3>Reglas de datos</h3>
+      <ul class="lista">
+        <li>Deduplicación de correos por <code>gmail_message_id</code> y <code>Message-ID</code>.</li>
+        <li><code>ticket_correo_envios</code> evita que las copias SENT de un envío múltiple se lean como respuestas.</li>
+        <li><code>visible_cliente</code> por defecto <code>true</code>; los mensajes internos se marcan explícitamente.</li>
+        <li>Tokens de portal guardados como hash SHA-256; nunca se devuelven.</li>
+        <li>Versión optimista en tickets y seguimientos para concurrencia.</li>
+      </ul>
+    </section>
+
+    <section id="seguridad">
+      <h2>Permisos y seguridad</h2>
+      <p class="sub">Qué protege cada capa.</p>
+      <div class="two">
+        <div class="card">
+          <strong>Sesión y roles</strong>
+          <p>Cookie host-only, sesión de 15 días con renovación. ADMIN ve todo; OPERADOR según permisos de pantalla y área. El menú y las rutas filtran por pantallas habilitadas.</p>
+        </div>
+        <div class="card">
+          <strong>API</strong>
+          <p>El guard valida sesión y prefijo de permiso. Rutas públicas: <code>/api/salud</code>, <code>/api/docs</code>, <code>/api/openapi.json</code>, <code>/api/sesion</code>, webhook de tickets, Pub/Sub de Gmail y portal.</p>
+        </div>
+        <div class="card">
+          <strong>Proxy</strong>
+          <p>El frontend reenvía <code>/api/*</code> y no sigue redirects (<code>redirect: 'manual'</code>) para que OAuth y callbacks lleguen al navegador con el origen correcto.</p>
+        </div>
+        <div class="card">
+          <strong>Portal</strong>
+          <p>Capability URL, token hasheado, 30 días, solo ticket abierto, solo mensajes visibles, sin cambios de estado, rate limit y honeypot. No hay OTP por ahora.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="estado">
+      <h2>Estado y verificación</h2>
+      <div class="grid">
+        <div class="card"><strong>Servidor</strong><p>149 tests en 18 archivos. <code>svelte-check</code> 0/0 y build OK.</p></div>
+        <div class="card"><strong>Cliente</strong><p>65 tests en 7 archivos. <code>svelte-check</code> 0/0 y build OK.</p></div>
+        <div class="card"><strong>API real</strong><p>Verificados tickets, notificaciones, Gmail OAuth, correo entrante, portal público y envío por destinatario.</p></div>
+        <div class="card"><strong>Datos</strong><p>Migraciones 0040 y 0041 aplicadas en la base de desarrollo.</p></div>
+      </div>
+      <h3>Pendientes conocidos</h3>
+      <ul class="lista">
+        <li>Marcar como Solo interno los mensajes anteriores que no deban ver los invitados.</li>
+        <li>Evaluar OTP por ticket sensible en el portal (no implementado).</li>
+        <li>Regenerar el snapshot de Drizzle por las migraciones custom.</li>
+        <li>Clientes sigue siendo demo; no es el maestro de servicios.</li>
+        <li>No hay adjuntos en el portal ni en el correo del ticket.</li>
+      </ul>
+    </section>
+
+    <section id="decisiones">
+      <h2>Decisiones y retiros</h2>
+      <h3>Decisiones vigentes</h3>
+      <table>
+        <thead><tr><th>Tema</th><th>Decisión</th><th>Motivo</th></tr></thead>
+        <tbody>
+          <tr><td>Temas</td><td>Oscuro por defecto y claro opcional; la elección se guarda por navegador (<code>localStorage</code>). CSS separado por modo y tokens semánticos.</td><td>Cambiar de tema sin duplicar estilos ni migrar la base.</td></tr>
+          <tr><td>Selects</td><td>Etiqueta arriba a 1 px, 0.6 rem y mayúsculas; control con borde, radio 0.7 rem y chevron propio. Los filtros usan el menú propio de <code>ChipSelect</code>; en Cobranza van en una línea con búsqueda compacta y envuelven por debajo de 1280 px.</td><td>Unificar la lectura de filtros y ganar ancho.</td></tr>
+          <tr><td>Importación de plantillas</td><td>El botón abre un modal con dos acciones: descargar la plantilla modelo (17 encabezados + 4 ejemplos) o importar la planilla. Los datos de ejemplo son una guía y se reemplazan por los reales.</td><td>Evitar planillas armadas a mano con columnas faltantes o con otro nombre.</td></tr>
+          <tr><td>Importación de cartera</td><td>El modal permite descargar <code>PLANTILLA COBRANZA.xlsx</code> (encabezados en la fila 5 y 4 ejemplos) y aclara que la importación es para el reporte de facturas pendientes de cobro de Zureo Go.</td><td>Respetar el corte de la exportación de Zureo y evitar planillas con encabezados en otra fila.</td></tr>
+          <tr><td>Importación de servicios</td><td>El modal permite descargar <code>PLANTILLA SERVICIOS.xlsx</code> con la hoja <code>Servicios a importar</code> (4 ejemplos) y la hoja <code>Parámetros</code> con los catálogos activos. El lector elige la hoja por nombre y cae a la primera en archivos viejos.</td><td>Evitar valores fuera de catálogo y que se importe la hoja de parámetros por error.</td></tr>
+          <tr><td>Notificaciones</td><td>Una sola campana en el Banner; el endpoint agrega tickets y seguimientos.</td><td>Evitar campanas duplicadas y centralizar avisos.</td></tr>
+          <tr><td>Chat del ticket</td><td>Solo mensajes; los eventos van a Auditoría. Agrupación por autor, hora en la burbuja y auto-scroll al último mensaje.</td><td>Legibilidad y foco en la conversación.</td></tr>
+          <tr><td>Detalle</td><td>En Tickets y Seguimientos, la lista y el detalle conviven en dos columnas al seleccionar.</td><td>Mantener el contexto de la lista sin pantallas completas.</td></tr>
+          <tr><td>Correo del ticket</td><td>Un correo por destinatario, con link de portal propio; no se adjunta la conversación completa. Está activo por defecto; destildarlo o marcar “Solo interno” lo desactiva y solo queda la notificación en la campana.</td><td>Contexto completo en la app, sin duplicar hilos ni filtrar datos.</td></tr>
+          <tr><td>Portal</td><td>Link directo sin login, por destinatario, solo ticket abierto y mensajes visibles. El token identifica al destinatario, así que no se le piden nombre ni email.</td><td>Baja fricción para invitados con permisos mínimos.</td></tr>
+          <tr><td>Visibilidad</td><td><code>Solo interno</code> no se envía ni se muestra en el portal.</td><td>Separar coordinación interna de la conversación pública.</td></tr>
+          <tr><td>Gmail</td><td>Reply-To <code>cuenta+código@dominio</code>; el sondeo procesa SENT propios solo si pertenecen a un ticket/seguimiento y deduplica.</td><td>Respuestas al mismo buzón y sin duplicados.</td></tr>
+          <tr><td>Menú</td><td>Al expandirse, empuja el contenido 270 px.</td><td>Evitar que tape el detalle.</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Retirado o reemplazado</h3>
+      <table>
+        <thead><tr><th>Elemento</th><th>Estado actual</th></tr></thead>
+        <tbody>
+          <tr><td>Modal “Enviar correo del ticket” con Para/CC/Asunto</td><td>Eliminado. Se responde desde el composer; los destinatarios se resuelven por involucrados.</td></tr>
+          <tr><td>Botones “Enviar por correo” / “Redactar correo”</td><td>Eliminados.</td></tr>
+          <tr><td>Campanas en Tickets y Seguimientos</td><td>Eliminadas; solo campana global.</td></tr>
+          <tr><td>Tarjetas de eventos en el chat de tickets</td><td>Eliminadas del chat; se conservan en Auditoría.</td></tr>
+          <tr><td>Tarjeta “Responsable e involucrados” y “Servicio y seguimiento” del alta</td><td>Reemplazadas: menciones dentro del Mensaje y búsqueda de servicio en la card de Tipo.</td></tr>
+          <tr><td>Contador de notificaciones demo</td><td>Reemplazado por datos reales.</td></tr>
+          <tr><td>Tarjeta “Tickets” y lista de vinculados en Seguimiento</td><td>Retiradas del detalle; el filtro y “Crear ticket” continúan.</td></tr>
+          <tr><td>Iconos emoji de alerta de mora</td><td>Reemplazados por SVG de círculo amarillo, círculo naranja y triángulo rojo.</td></tr>
+          <tr><td>Propuestas/prototipos V15 y relevamiento extenso de Cobranza</td><td>Retirados de la doc maestra; la pantalla Cobranza actual quedó documentada en su sección.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="cronologia">
+      <h2>Cronología</h2>
+      <p class="sub">Hitos recientes; el detalle está en Engram.</p>
+      <table>
+        <thead><tr><th>Fecha</th><th>Cambio</th><th>Topic Engram</th></tr></thead>
+        <tbody>
+          <tr><td>2026-11-21</td><td>Tickets: filtro de estado por defecto “Todos los activos”, que excluye Cerrado, Cancelado y Resuelto.</td><td><code>ui/tickets-estado-activos</code></td></tr>
+          <tr><td>2026-11-21</td><td>Tickets: correo a involucrados activo por defecto; destildarlo notifica solo en la campana. “Solo interno” también lo desactiva.</td><td><code>ui/tickets-correo-default</code></td></tr>
+          <tr><td>2026-11-21</td><td>Seguimientos: tarjeta de dos líneas con estado a la derecha, detalle en el split sin expansión, cabecera compacta y compositor fijo como pie con el selector de canal junto a Crear ticket.</td><td><code>ui/seguimientos-tarjeta-split</code></td></tr>
+          <tr><td>2026-11-21</td><td>Tema oscuro por defecto y claro, CSS separado por modo, selector en Apariencia y halo blanco en modales.</td><td><code>ui/tema-oscuro-claro</code></td></tr>
+          <tr><td>2026-11-21</td><td>Servicios: modal de importación con plantilla de datos y hoja Parámetros; el lector elige la hoja por nombre.</td><td><code>ui/importacion-servicios-xlsx</code></td></tr>
+          <tr><td>2026-11-21</td><td>Cartera: plantilla descargable con encabezados en la fila 5 y 4 ejemplos; el modal aclara que el origen es Zureo Go.</td><td><code>ui/importacion-cartera-xlsx</code></td></tr>
+          <tr><td>2026-11-21</td><td>Importación de plantillas: modal con descarga del modelo xlsx (17 encabezados y 4 ejemplos) e importación del archivo.</td><td><code>ui/importacion-plantillas-xlsx</code></td></tr>
+          <tr><td>2026-11-19</td><td>Portal público: el token identifica al destinatario y ya no pide nombre ni email.</td><td><code>ui/ticket-portal-identidad</code></td></tr>
+          <tr><td>2026-11-19</td><td>Portal con link por destinatario, email identificado y deduplicación de envíos.</td><td><code>feature/ticket-portal-publico</code></td></tr>
+          <tr><td>2026-11-19</td><td>Doc maestra reordenada por pantalla, relaciones y flujos; retiro de propuestas no implementadas.</td><td><code>docs/documentacion-html</code></td></tr>
+          <tr><td>2026-11-18</td><td>Portal público de tickets, visibilidad Solo interno y correo por involucrados.</td><td><code>ui/tickets-correo-involucrados</code></td></tr>
+          <tr><td>2026-11-18</td><td>Gmail OAuth operativo; Reply-To corregido y respuestas SENT procesadas.</td><td><code>config/gmail-oauth</code>, <code>bugfix/gmail-reply-to</code></td></tr>
+          <tr><td>2026-11-17</td><td>Notificaciones centralizadas, chat estilo WhatsApp, rediseño visual y auto-scroll.</td><td><code>ui/notificaciones-generales</code>, <code>ui/tickets-conversacion</code></td></tr>
+          <tr><td>2026-11-17</td><td>Alertas de mora con SVG nuevos y menú que empuja el contenido.</td><td><code>ui/cobranza-alertas-mora</code>, <code>ui/menu-lateral-push</code></td></tr>
+          <tr><td>2026-11-11</td><td>Base de documentación maestra (Multifacturador y Cobranza).</td><td><code>docs/documentacion-html</code></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="glosario">
+      <h2>Glosario</h2>
+      <table>
+        <thead><tr><th>Término</th><th>Significado</th></tr></thead>
+        <tbody>
+          <tr><td>Servicio</td><td>Entidad facturable con cliente, numeración, grupo y datos de gestión.</td></tr>
+          <tr><td>Plantilla</td><td>Conjunto de líneas y datos base para facturar un servicio.</td></tr>
+          <tr><td>Facturador</td><td>Copia editable de una plantilla para un período/fecha.</td></tr>
+          <tr><td>Bandeja</td><td>Facturas listas para exportar al facturador externo.</td></tr>
+          <tr><td>Comprobante</td><td>Documento de deuda de un servicio; base de la cartera.</td></tr>
+          <tr><td>Tramo</td><td>Rango de antigüedad de la deuda (1–30, 31–60, 61–90 y +90 días).</td></tr>
+          <tr><td>Ticket</td><td>Conversación interna con estados, participantes y correo.</td></tr>
+          <tr><td>Seguimiento</td><td>Caso de cobranza de un servicio, con historial y próximos pasos.</td></tr>
+          <tr><td>Participante</td><td>Área o usuario involucrado en un ticket.</td></tr>
+          <tr><td>Capability URL</td><td>Link con token secreto que autoriza una acción acotada sin sesión.</td></tr>
+          <tr><td>Solo interno</td><td>Mensaje que no se envía por correo ni se muestra en el portal.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="actualizar">
+      <h2>Cómo actualizar esta documentación</h2>
+      <ol class="flow">
+        <li>Identificar la pantalla o flujo afectado.</li>
+        <li>Actualizar la sección correspondiente (pantalla, relaciones, flujo, API o datos).</li>
+        <li>Si cambió una tabla o migración, actualizar la sección Datos y mencionar el número de migración.</li>
+        <li>Agregar el hito en Cronología con fecha y <code>topic_key</code>.</li>
+        <li>Guardar la decisión o el cambio en Engram con el mismo topic.</li>
+        <li>Verificar <code>svelte-check</code>, tests y build antes de cerrar.</li>
+        <li>No dejar en la doc pantallas, modales o flujos que ya fueron retirados.</li>
+      </ol>
+      <p class="note">La documentación debe describir el estado actual, no propuestas. Las ideas futuras van a “Pendientes” o a un documento aparte.</p>
+    </section>
+
+    <section id="documentos">
+      <h2>Documentos relacionados</h2>
+      <table>
+        <thead><tr><th>Documento</th><th>Contenido</th></tr></thead>
+        <tbody>
+          <tr><td><code>README.md</code></td><td>Guía humana de instalación, arranque y estructura.</td></tr>
+          <tr><td><code>GMAIL-API.md</code></td><td>OAuth, envío, hilo, sondeo, Pub/Sub y diagnóstico de Gmail.</td></tr>
+          <tr><td><code>TICKETS-DECISIONES.md</code></td><td>Reglas de negocio y decisiones del módulo Tickets.</td></tr>
+          <tr><td><code>SEGUIMIENTOS-DECISIONES.md</code></td><td>Reglas y decisiones del Centro de seguimiento.</td></tr>
+          <tr><td><code>PLAN-MULTIFACTURACION.md</code></td><td>Plan y alcance del Multifacturador.</td></tr>
+          <tr><td>Engram</td><td>Memoria operativa por tema: <code>state/proyecto</code>, <code>feature/tickets</code>, <code>feature/ticket-portal-publico</code>, <code>ui/tickets-conversacion</code>, <code>config/gmail-oauth</code>, entre otros.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <footer>CRM FacturaPro · Documentación Maestra v2.0 · 19/11/2026</footer>
+  </main>
+</div>
+
+<script>
+  const buscar = document.getElementById('buscar');
+  const secciones = [...document.querySelectorAll('main > section')];
+  const enlaces = [...document.querySelectorAll('#indice a')];
+
+  buscar?.addEventListener('input', () => {
+    const q = buscar.value.trim().toLowerCase();
+    for (const seccion of secciones) {
+      const coincide = !q || seccion.textContent.toLowerCase().includes(q);
+      seccion.hidden = !coincide;
+    }
+    for (const enlace of enlaces) {
+      const destino = document.querySelector(enlace.getAttribute('href'));
+      enlace.style.opacity = destino && destino.hidden ? '.4' : '1';
+    }
+  });
+
+  const observer = new IntersectionObserver(
+    (entradas) => {
+      for (const entrada of entradas) {
+        if (!entrada.isIntersecting) continue;
+        const id = '#' + entrada.target.id;
+        for (const enlace of enlaces) {
+          enlace.classList.toggle('active', enlace.getAttribute('href') === id);
+        }
+      }
+    },
+    { rootMargin: '-20% 0px -70% 0px' }
+  );
+  for (const seccion of secciones) observer.observe(seccion);
+</script>
+</body>
+</html>

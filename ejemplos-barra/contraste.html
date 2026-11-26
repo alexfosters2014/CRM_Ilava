@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Barra de lotes · opciones de mayor contraste</title>
+<style>
+	:root {
+		color-scheme: dark;
+		--fondo-app: #070d1a;
+		--superficie: #0b1322;
+		--superficie-alta: #111c31;
+		--superficie-suave: #0e1729;
+		--borde: #1d2a42;
+		--borde-suave: #16223a;
+		--borde-fuerte: #2b3b5c;
+		--texto: #e8eef8;
+		--texto-suave: #94a3b8;
+		--texto-tenue: #6b7a94;
+		--primario-borde: #4c1d95;
+		--primario-texto: #c4b5fd;
+		--accion-gradiente: linear-gradient(135deg, #8b5cf6, #d946ef);
+	}
+	* { box-sizing: border-box; }
+	body {
+		margin: 0;
+		padding: 32px clamp(16px, 4vw, 56px) 56px;
+		background: var(--fondo-app);
+		color: var(--texto);
+		font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+	}
+	.encabezado { max-width: 70rem; margin: 0 auto 28px; }
+	.encabezado h1 { margin: 0 0 6px; font-size: clamp(1.2rem, 2vw, 1.6rem); }
+	.encabezado p { margin: 0; color: var(--texto-suave); font-size: 0.85rem; max-width: 56rem; }
+	.grid { display: grid; gap: 22px; max-width: 70rem; margin: 0 auto; }
+	.caso { border: 1px solid var(--borde); border-radius: 18px; background: var(--fondo-app); overflow: hidden; }
+	.caso-cabecera { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; padding: 16px 18px 12px; }
+	.caso-cabecera h2 { margin: 0; font-size: 0.95rem; }
+	.caso-cabecera span { color: var(--texto-tenue); font-size: 0.72rem; }
+	.caso-cabecera strong { color: var(--primario-texto); }
+	.mini-tabla { padding: 0 18px; }
+	.mini-tabla table { width: 100%; border-collapse: collapse; font-size: 11.5px; }
+	.mini-tabla th {
+		padding: 7px 8px; text-align: left; font-size: 9px; letter-spacing: 0.08em;
+		text-transform: uppercase; color: var(--texto-tenue); border-bottom: 1px solid var(--borde);
+	}
+	.mini-tabla td { padding: 8px; border-bottom: 1px solid var(--borde-suave); color: #cbd5e1; }
+	.mini-tabla tbody tr:nth-child(even) { background: #0a1220; }
+	.mini-tabla .num { text-align: right; font-variant-numeric: tabular-nums; }
+	.escenario {
+		display: flex; justify-content: center; padding: 18px 18px 22px;
+		background:
+			linear-gradient(180deg, rgba(7, 13, 26, 0) 0%, rgba(7, 13, 26, 0.7) 100%),
+			repeating-linear-gradient(180deg, #08101f 0 40px, #0a1322 40px 41px);
+	}
+	/* base */
+	.barra {
+		display: flex; align-items: center; gap: 12px; padding: 9px;
+		border: 1px solid var(--borde-fuerte); border-radius: 16px;
+		background: linear-gradient(180deg, #131f36 0%, #0f1a2e 100%);
+		box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+	}
+	.contador {
+		padding: 10px 14px; border: 1px solid var(--borde); border-radius: 10px;
+		background: var(--superficie-suave); color: var(--texto);
+		font-size: 13px; font-weight: 800; white-space: nowrap;
+	}
+	.acciones { display: flex; gap: 8px; }
+	.accion {
+		display: grid; justify-items: center; gap: 4px; min-width: 106px;
+		padding: 8px 12px; border: 1px solid var(--borde); border-radius: 12px;
+		background: var(--superficie); color: var(--texto-suave);
+		font: inherit; font-size: 11px; font-weight: 800; cursor: pointer;
+		transition: background 0.16s ease, border-color 0.16s ease, color 0.16s ease,
+			box-shadow 0.16s ease, transform 0.16s ease;
+	}
+	.accion svg { width: 19px; height: 19px; }
+	/* D · panel claro */
+	.caso-d .barra {
+		border-color: #47628f;
+		background: linear-gradient(180deg, #22345c 0%, #182747 100%);
+		box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+	}
+	.caso-d .contador { border-color: #2b3b5c; background: #0f1a2f; }
+	.caso-d .accion { border-color: #2e4368; background: #101c33; color: #c3d0e6; }
+
+	/* E · índigo de marca */
+	.caso-e .barra {
+		border-color: #5b46a8;
+		background: linear-gradient(120deg, #241f5c 0%, #2b1a4f 55%, #1b2148 100%);
+		box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55), 0 0 50px rgba(139, 92, 246, 0.18);
+	}
+	.caso-e .contador { border-color: #4c3a8a; background: #181338; color: #e6ddff; }
+	.caso-e .accion { border-color: #4c3a8a; background: #1a1a3d; color: #d8ccff; }
+	.caso-e .accion:hover,
+	.caso-e .accion.is-hover {
+		border-color: #d8b4fe;
+		box-shadow: 0 0 22px rgba(217, 70, 239, 0.45), 0 10px 24px rgba(0, 0, 0, 0.35);
+	}
+
+	/* F · marco flotante */
+	.caso-f .barra {
+		border-color: #3f5680;
+		background: linear-gradient(180deg, #1a2947 0%, #141f36 100%);
+		box-shadow:
+			0 0 0 3px #0b1322,
+			0 0 0 4px #22314f,
+			0 24px 60px rgba(0, 0, 0, 0.6);
+	}
+	.caso-f .contador { border-color: #2b3b5c; background: #0e1729; }
+	.caso-f .accion { border-color: #2b3b5c; background: #0f1b30; color: #c3d0e6; }
+
+	/*
+	 * Hover violeta: va al final para ganarle al fondo en reposo de cada
+	 * variante (misma especificidad). Aplica a todos los botones.
+	 */
+	.accion:hover,
+	.accion.is-hover {
+		border-color: transparent;
+		background: var(--accion-gradiente);
+		color: #ffffff;
+		box-shadow: 0 10px 24px rgba(124, 58, 237, 0.35);
+		transform: translateY(-1px);
+	}
+</style>
+</head>
+<body>
+	<header class="encabezado">
+		<h1>Otras tres direcciones, con más contraste</h1>
+		<p>
+			Todas siguen en la paleta de la app y el violeta es el <strong>hover de todos los botones</strong>.
+			“Enviar mails” está mostrando ese hover para que compares.
+		</p>
+	</header>
+
+	<div class="grid">
+		<section class="caso caso-d">
+			<div class="caso-cabecera">
+				<h2>D · Panel claro</h2>
+				<span>La barra es claramente más clara que la tabla; los botones, oscuros. Contraste de valor.</span>
+			</div>
+			<div class="mini-tabla">
+				<table>
+					<thead><tr><th>Comprobante</th><th>Vencimiento</th><th class="num">Saldo</th></tr></thead>
+					<tbody>
+						<tr><td>Venta Crédito A-38496</td><td>30/08/2026</td><td class="num">$ 54.846,86</td></tr>
+						<tr><td>Venta Crédito A-39356</td><td>14/10/2026</td><td class="num">$ 193.925,72</td></tr>
+						<tr><td>Nota de Crédito A-3889</td><td>26/09/2026</td><td class="num">-$ 19.207,52</td></tr>
+					</tbody>
+				</table>
+			</div>
+			<div class="escenario">
+				<div class="barra">
+					<span class="contador">1 servicio seleccionado</span>
+					<div class="acciones">
+						<button class="accion is-hover" type="button">
+							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/></svg>
+							Enviar mails
+						</button>
+						<button class="accion" type="button">
+							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 2 9 5-9 5-9-5 9-5Z"/><path d="m3 12 9 5 9-5"/><path d="m3 17 9 5 9-5"/></svg>
+							Asignar grupo
+						</button>
+						<button class="accion" type="button">
+							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+							Limpiar
+						</button>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<section class="caso caso-e">
+			<div class="caso-cabecera">
+				<h2>E · Índigo de marca</h2>
+				<span>La superficie se tiñe de índigo/violeta: se separa por color, no por brillo.</span>
+			</div>
+			<div class="mini-tabla">
+				<table>
+					<thead><tr><th>Comprobante</th><th>Vencimiento</th><th class="num">Saldo</th></tr></thead>
+					<tbody>
+						<tr><td>Venta Crédito A-38496</td><td>30/08/2026</td><td class="num">$ 54.846,86</td></tr>
+						<tr><td>Venta Crédito A-39356</td><td>14/10/2026</td><td class="num">$ 193.925,72</td></tr>
+						<tr><td>Nota de Crédito A-3889</td><td>26/09/2026</td><td class="num">-$ 19.207,52</td></tr>
+					</tbody>
+				</table>
+			</div>
+			<div class="escenario">
+				<div class="barra">
+					<span class="contador">1 servicio seleccionado</span>
+					<div class="acciones">
+						<button class="accion is-hover" type="button">
+							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/></svg>
+							Enviar mails
+						</button>
+						<button class="accion" type="button">
+							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 2 9 5-9 5-9-5 9-5Z"/><path d="m3 12 9 5 9-5"/><path d="m3 17 9 5 9-5"/></svg>
+							Asignar grupo
+						</button>
+						<button class="accion" type="button">
+							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+							Limpiar
+						</button>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<section class="caso caso-f">
+			<div class="caso-cabecera">
+				<h2>F · Marco flotante</h2>
+				<span>Un anillo oscuro la separa de la tabla y un filo claro la define. Efecto de objeto flotante.</span>
+			</div>
+			<div class="mini-tabla">
+				<table>
+					<thead><tr><th>Comprobante</th><th>Vencimiento</th><th class="num">Saldo</th></tr></thead>
+					<tbody>
+						<tr><td>Venta Crédito A-38496</td><td>30/08/2026</td><td class="num">$ 54.846,86</td></tr>
+						<tr><td>Venta Crédito A-39356</td><td>14/10/2026</td><td class="num">$ 193.925,72</td></tr>
+						<tr><td>Nota de Crédito A-3889</td><td>26/09/2026</td><td class="num">-$ 19.207,52</td></tr>
+					</tbody>
+				</table>
+			</div>
+			<div class="escenario">
+				<div class="barra">
+					<span class="contador">1 servicio seleccionado</span>
+					<div class="acciones">
+						<button class="accion is-hover" type="button">
+							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/></svg>
+							Enviar mails
+						</button>
+						<button class="accion" type="button">
+							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 2 9 5-9 5-9-5 9-5Z"/><path d="m3 12 9 5 9-5"/><path d="m3 17 9 5 9-5"/></svg>
+							Asignar grupo
+						</button>
+						<button class="accion" type="button">
+							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+							Limpiar
+						</button>
+					</div>
+				</div>
+			</div>
+		</section>
+	</div>
+</body>
+</html>

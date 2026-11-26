@@ -1,0 +1,437 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Modal de cobranza · sistema de zonas</title>
+<style>
+	:root {
+		color-scheme: dark;
+		--fondo-app: #070d1a;
+		--n1: #0c1628;
+		--n2: #101c33;
+		--n3: #16233c;
+		--borde: #1d2a42;
+		--borde-suave: #16223a;
+		--borde-fuerte: #2b3b5c;
+		--texto: #e8eef8;
+		--texto-suave: #94a3b8;
+		--texto-tenue: #6b7a94;
+		--primario: #8b5cf6;
+		--primario-tenue: #1e1b4b;
+		--primario-borde: #4c1d95;
+		--primario-texto: #c4b5fd;
+		--accion-gradiente: linear-gradient(135deg, #8b5cf6, #d946ef);
+		--azul: #3b82f6;
+		--indigo: #8b5cf6;
+		--violeta: #d946ef;
+		--exito-tenue: #052e2b;
+		--exito-texto: #6ee7b7;
+		--alerta-tenue: #3b2a08;
+		--alerta-texto: #fcd34d;
+	}
+	* { box-sizing: border-box; }
+	body {
+		margin: 0;
+		padding: 32px clamp(14px, 3vw, 48px) 56px;
+		background: var(--fondo-app);
+		color: var(--texto);
+		font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+	}
+	.pagina { max-width: 68rem; margin: 0 auto; }
+	.pagina > h1 { margin: 0 0 6px; font-size: clamp(1.15rem, 2vw, 1.5rem); }
+	.pagina > p { margin: 0 0 28px; color: var(--texto-suave); font-size: 0.84rem; max-width: 58rem; }
+	.caso { margin-bottom: 36px; }
+	.caso-cab { margin-bottom: 10px; }
+	.caso-cab h2 { margin: 0; font-size: 0.95rem; }
+	.caso-cab p { margin: 4px 0 0; color: var(--texto-tenue); font-size: 0.74rem; max-width: 60rem; }
+	.caso-cab strong { color: var(--primario-texto); }
+
+	/* ---------- modal con zonas ---------- */
+	.modal {
+		display: grid;
+		gap: 10px;
+		padding: 12px;
+		border: 1px solid var(--borde-fuerte);
+		border-radius: 20px;
+		background: var(--fondo-app);
+		box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+	}
+	.zona {
+		position: relative;
+		border: 1px solid var(--borde);
+		border-radius: 13px;
+		background: var(--n1);
+		overflow: hidden;
+	}
+	.zona::before {
+		content: '';
+		position: absolute;
+		left: 0;
+		top: 12px;
+		bottom: 12px;
+		width: 3px;
+		border-radius: 0 3px 3px 0;
+		background: var(--acento, transparent);
+		opacity: 0.85;
+	}
+	.zona-cab {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		padding: 10px 14px 0;
+		font-size: 8.5px;
+		font-weight: 800;
+		letter-spacing: 0.12em;
+		text-transform: uppercase;
+		color: var(--texto-tenue);
+	}
+	.zona-cab .dot {
+		width: 6px;
+		height: 6px;
+		border-radius: 999px;
+		background: var(--acento, var(--texto-tenue));
+		box-shadow: 0 0 8px var(--acento, transparent);
+	}
+	.zona-cab .extra { margin-left: auto; color: var(--texto-suave); letter-spacing: 0; text-transform: none; font-weight: 700; font-size: 0.66rem; }
+	.cerrar {
+		display: grid;
+		place-items: center;
+		width: 26px;
+		height: 26px;
+		border: 1px solid var(--borde);
+		border-radius: 8px;
+		background: var(--n1);
+		color: var(--texto-suave);
+		font-size: 15px;
+		line-height: 1;
+		cursor: pointer;
+	}
+	.btn {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		gap: 6px;
+		padding: 8px 12px;
+		border: 1px solid var(--borde);
+		border-radius: 9px;
+		background: var(--n2);
+		color: var(--texto);
+		font: inherit;
+		font-size: 0.72rem;
+		font-weight: 800;
+		cursor: pointer;
+		white-space: nowrap;
+	}
+	.btn.ghost { background: transparent; color: var(--texto-suave); }
+	.btn.primary {
+		border-color: transparent;
+		background: var(--accion-gradiente);
+		color: #fff;
+		box-shadow: 0 8px 20px rgba(124, 58, 237, 0.28);
+	}
+	.btn.chip { padding: 5px 9px; border-radius: 999px; font-size: 0.64rem; }
+	.btn.alerta { border-color: #7c4a06; background: var(--alerta-tenue); color: var(--alerta-texto); }
+
+	/* identidad */
+	.z-identidad { --acento: var(--azul); background: linear-gradient(120deg, #142347 0%, #101c33 58%, #0d192c 100%); border-color: #2b3b5c; }
+	.z-identidad .contenido { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 22px; align-items: center; padding: 8px 14px 14px; }
+	.mident h3 { margin: 0 0 3px; font-size: 1.03rem; line-height: 1.2; }
+	.mident p { margin: 0; color: var(--texto-suave); font-size: 0.72rem; }
+	.mmetricas { display: flex; align-items: center; gap: 18px; }
+	.mmetricas span { display: grid; gap: 2px; }
+	.mmetricas small { font-size: 8.5px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: var(--texto-tenue); }
+	.mmetricas strong { font-size: 0.95rem; font-variant-numeric: tabular-nums; }
+	.mmetricas .destacada strong { color: var(--primario-texto); }
+	.macciones { display: flex; align-items: center; gap: 8px; }
+
+	/* controles */
+	.z-controles { --acento: #64748b; background: #0a1424; }
+	.z-controles .contenido { display: flex; align-items: flex-end; gap: 12px; flex-wrap: wrap; padding: 8px 14px 14px; }
+	.control { display: grid; gap: 3px; }
+	.control > span { font-size: 8.5px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: var(--texto-tenue); }
+	.control .valor {
+		display: inline-flex;
+		align-items: center;
+		gap: 8px;
+		min-height: 32px;
+		padding: 0 9px;
+		border: 1px solid var(--borde);
+		border-radius: 8px;
+		background: var(--fondo-app);
+		color: var(--texto);
+		font-size: 0.72rem;
+		font-weight: 700;
+	}
+	.pred {
+		display: inline-flex;
+		align-items: center;
+		gap: 4px;
+		padding: 3px 7px;
+		border-radius: 999px;
+		background: var(--exito-tenue);
+		color: var(--exito-texto);
+		font-size: 0.6rem;
+		font-weight: 800;
+	}
+
+	/* resumen */
+	.z-resumen { --acento: var(--indigo); background: rgba(139, 92, 246, 0.1); border-color: #3b2d6e; }
+	.z-resumen .contenido { display: flex; align-items: center; gap: 22px; padding: 8px 14px 12px; flex-wrap: wrap; }
+	.z-resumen .dato { display: grid; gap: 1px; }
+	.z-resumen .dato small { font-size: 8px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: var(--texto-tenue); }
+	.z-resumen .dato strong { font-size: 0.82rem; font-variant-numeric: tabular-nums; }
+	.z-resumen .nota { color: var(--texto-suave); font-size: 0.7rem; }
+
+	/* tabla */
+	.z-tabla { --acento: transparent; background: #0b1322; }
+	.z-tabla .contenido { padding: 4px 14px 14px; }
+	.mtitulo { display: flex; align-items: baseline; gap: 8px; margin-bottom: 8px; }
+	.mtitulo h4 { margin: 0; font-size: 0.86rem; }
+	.mtitulo span { color: var(--texto-tenue); font-size: 0.7rem; }
+	.solo-vencidos { margin-left: auto; display: inline-flex; align-items: center; gap: 6px; font-size: 0.66rem; font-weight: 800; color: var(--texto-suave); }
+	.solo-vencidos i { display: block; width: 13px; height: 13px; border: 1px solid var(--borde-fuerte); border-radius: 3px; }
+	.tabla { width: 100%; border-collapse: collapse; font-size: 0.7rem; }
+	.tabla th {
+		padding: 7px 8px;
+		text-align: left;
+		font-size: 8.5px;
+		font-weight: 800;
+		letter-spacing: 0.1em;
+		text-transform: uppercase;
+		color: var(--texto-tenue);
+		background: #141f36;
+		border-bottom: 1px solid var(--borde-fuerte);
+	}
+	.tabla td { padding: 8px; border-bottom: 1px solid var(--borde-suave); color: #cbd5e1; white-space: nowrap; }
+	.tabla tbody tr:nth-child(even) { background: #0d1729; }
+	.tabla tbody tr:hover { background: var(--n3); }
+	.tabla .num { text-align: right; font-variant-numeric: tabular-nums; }
+	.aging { display: inline-block; padding: 2px 6px; border-radius: 5px; font-size: 0.6rem; font-weight: 800; }
+	.aging.g61 { background: #2a1f4f; color: #c4b5fd; }
+	.aging.g31 { background: #3b2a08; color: #fcd34d; }
+	.aging.g1 { background: #052e2b; color: #6ee7b7; }
+	.estado-aging { margin-left: 6px; font-size: 0.64rem; font-weight: 700; }
+	.estado-aging.vencida { color: #fca5a5; }
+	.estado-aging.vigente { color: #86efac; }
+	.icono {
+		display: inline-grid;
+		place-items: center;
+		width: 26px;
+		height: 26px;
+		margin-left: 4px;
+		border: 1px solid var(--borde);
+		border-radius: 7px;
+		background: var(--n1);
+		color: var(--texto-suave);
+		cursor: pointer;
+	}
+	.icono svg { width: 14px; height: 14px; }
+
+	/* totales */
+	.z-totales { --acento: var(--violeta); background: linear-gradient(120deg, #1b1640 0%, #151a38 100%); border-color: #4c3a8a; }
+	.z-totales .contenido { display: flex; align-items: center; justify-content: space-between; gap: 22px; padding: 8px 14px 14px; flex-wrap: wrap; }
+	.z-totales .etiqueta { display: grid; gap: 1px; }
+	.z-totales .etiqueta strong { font-size: 0.75rem; }
+	.z-totales .etiqueta small { color: var(--texto-tenue); font-size: 0.64rem; font-weight: 600; }
+	.z-totales .cifras { display: flex; gap: 28px; }
+	.z-totales .cifras span { display: grid; gap: 2px; text-align: right; }
+	.z-totales .cifras small { font-size: 8px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: var(--texto-tenue); }
+	.z-totales .cifras strong { font-size: 0.9rem; font-variant-numeric: tabular-nums; }
+	.z-totales .cifras .enviar strong { color: #e9d5ff; font-size: 1.12rem; }
+
+	/* destinatarios */
+	.z-destinatarios { --acento: #64748b; background: #0a1424; }
+	.z-destinatarios .contenido { display: flex; align-items: center; gap: 10px; padding: 8px 14px 14px; flex-wrap: wrap; }
+	.destinatario {
+		display: inline-flex;
+		align-items: center;
+		gap: 7px;
+		padding: 5px 9px;
+		border: 1px solid var(--borde);
+		border-radius: 999px;
+		background: var(--fondo-app);
+		font-size: 0.7rem;
+	}
+	.destinatario i {
+		display: grid;
+		place-items: center;
+		width: 18px;
+		height: 18px;
+		border-radius: 999px;
+		background: var(--n3);
+		color: var(--primario-texto);
+		font-size: 0.58rem;
+		font-style: normal;
+		font-weight: 800;
+	}
+
+	/* variante marcada: sube el valor de cada zona y separa por tinte */
+	.marcada .z-identidad { background: linear-gradient(120deg, #182f63 0%, #13224a 60%, #0f1b38 100%); border-color: #3b5a96; }
+	.marcada .z-controles { background: #0a1426; }
+	.marcada .z-resumen { background: rgba(99, 102, 241, 0.17); border-color: #4f46e5; }
+	.marcada .z-tabla { background: #0a1220; }
+	.marcada .z-tabla th { background: #1a2744; }
+	.marcada .z-totales { background: linear-gradient(120deg, #2b1a5f 0%, #1d1543 100%); border-color: #6d3fc0; }
+	.marcada .z-destinatarios { background: #0e1b33; }
+</style>
+</head>
+<body>
+<div class="pagina">
+	<h1>Modal de cobranza · sistema de zonas</h1>
+	<p>
+		Tenés razón: las propuestas anteriores usaban el mismo navy para todo. Acá cada bloque es una zona
+		con su propio fondo, su tinte y un riel de color a la izquierda: identidad (azul), controles (slate),
+		resumen (índigo), tabla (neutral), totales (violeta) y destinatarios (slate).
+	</p>
+
+	<section class="caso">
+		<header class="caso-cab">
+			<h2>Zonas suaves</h2>
+			<p>Diferenciación por pasos de valor y tintes al 10 %. Sigue siendo navy, pero cada parte se lee como un bloque.</p>
+		</header>
+		<div class="modal">
+			<header class="zona z-identidad">
+				<div class="zona-cab"><span class="dot"></span> Identidad <span class="extra">Noviembre 2026</span><button class="cerrar" type="button" style="margin-left: 10px">×</button></div>
+				<div class="contenido">
+					<div class="mident"><h3>2005 DIEGO GARCÍA</h3><p>RUT 12.345.678 · 3 comprobantes · toda la deuda del período</p></div>
+					<div class="mmetricas">
+						<span class="destacada"><small>Total UYU</small><strong>$ 8.448,00</strong></span>
+						<span><small>Total USD</small><strong>$ 0,00</strong></span>
+						<span><small>Equiv. UYU</small><strong>$ 8.448,00</strong></span>
+					</div>
+					<div class="macciones"><button class="btn ghost" type="button">Crear seguimiento</button><button class="btn primary" type="button">Enviar estado de cuenta</button></div>
+				</div>
+			</header>
+
+			<section class="zona z-controles">
+				<div class="zona-cab"><span class="dot"></span> Configuración del envío</div>
+				<div class="contenido">
+					<label class="control"><span>Modelo</span><span class="valor">Estado de cuenta <span class="pred">✓ predeterminada</span></span></label>
+					<label class="control"><span>Enviar desde</span><span class="valor">finanzas@vector.com.uy</span></label>
+					<label class="control"><span>Seguimiento</span><span class="valor">1 activo</span></label>
+					<label class="control"><span>WhatsApp</span><span class="valor" style="color: var(--alerta-texto)">Sin celular</span></label>
+				</div>
+			</section>
+
+			<section class="zona z-resumen">
+				<div class="zona-cab"><span class="dot"></span> Resumen del envío</div>
+				<div class="contenido">
+					<span class="dato"><small>Comprobantes</small><strong>3</strong></span>
+					<span class="dato"><small>Total</small><strong>$ 8.448,00</strong></span>
+					<span class="nota">Se envía toda la deuda del período · sin exclusiones temporales</span>
+				</div>
+			</section>
+
+			<section class="zona z-tabla">
+				<div class="zona-cab"><span class="dot"></span> Comprobantes en pesos <span class="extra">3 comprobantes</span></div>
+				<div class="contenido">
+					<div class="mtitulo"><h4>Detalle</h4><span class="solo-vencidos"><i></i> Enviar solo vencidos</span></div>
+					<table class="tabla">
+						<thead><tr><th>Emisión</th><th>Vencimiento</th><th>Plazo</th><th>Tipo / comprobante</th><th class="num">Importe</th><th class="num">Saldo</th><th>Aging</th><th class="num">Acciones</th></tr></thead>
+						<tbody>
+							<tr><td>15/09/2026</td><td>15/10/2026</td><td>30 d</td><td>Venta Crédito A-21266</td><td class="num">$ 2.816,00</td><td class="num">$ 2.816,00</td><td><span class="aging g61">61-90</span><span class="estado-aging vencida">Vencida 39 d</span></td><td class="num"><button class="icono" type="button">✉</button><button class="icono" type="button">🗑</button></td></tr>
+							<tr><td>14/10/2026</td><td>13/11/2026</td><td>30 d</td><td>Venta Crédito Alarma A-21630</td><td class="num">$ 2.816,00</td><td class="num">$ 2.816,00</td><td><span class="aging g31">31-60</span><span class="estado-aging vencida">Vencida 10 d</span></td><td class="num"><button class="icono" type="button">✉</button><button class="icono" type="button">🗑</button></td></tr>
+							<tr><td>13/11/2026</td><td>13/12/2026</td><td>30 d</td><td>Venta Crédito Alarma A-22127</td><td class="num">$ 2.816,00</td><td class="num">$ 2.816,00</td><td><span class="aging g1">1-30</span><span class="estado-aging vigente">Faltan 20 d</span></td><td class="num"><button class="icono" type="button">✉</button><button class="icono" type="button">🗑</button></td></tr>
+						</tbody>
+					</table>
+				</div>
+			</section>
+
+			<section class="zona z-totales">
+				<div class="zona-cab"><span class="dot"></span> Total a enviar</div>
+				<div class="contenido">
+					<div class="etiqueta"><strong>Sin exclusiones temporales</strong><small>Se envía el saldo pendiente del período</small></div>
+					<div class="cifras">
+						<span><small>Importe emitido</small><strong>$ 8.448,00</strong></span>
+						<span class="enviar"><small>A enviar</small><strong>$ 8.448,00</strong></span>
+					</div>
+				</div>
+			</section>
+
+			<section class="zona z-destinatarios">
+				<div class="zona-cab"><span class="dot"></span> Destinatarios <span class="extra">1 mail</span></div>
+				<div class="contenido">
+					<span class="destinatario"><i>CF</i> claudio.fuentes@email.com</span>
+					<button class="btn ghost" type="button">+ Agregar destinatario</button>
+				</div>
+			</section>
+		</div>
+	</section>
+
+	<section class="caso">
+		<header class="caso-cab">
+			<h2>Zonas marcadas</h2>
+			<p>Misma estructura con tintes más fuertes: identidad azul, resumen índigo y totales violeta. Se distinguen aun sin leer.</p>
+		</header>
+		<div class="modal marcada">
+			<header class="zona z-identidad">
+				<div class="zona-cab"><span class="dot"></span> Identidad <span class="extra">Noviembre 2026</span><button class="cerrar" type="button" style="margin-left: 10px">×</button></div>
+				<div class="contenido">
+					<div class="mident"><h3>2005 DIEGO GARCÍA</h3><p>RUT 12.345.678 · 3 comprobantes · toda la deuda del período</p></div>
+					<div class="mmetricas">
+						<span class="destacada"><small>Total UYU</small><strong>$ 8.448,00</strong></span>
+						<span><small>Total USD</small><strong>$ 0,00</strong></span>
+						<span><small>Equiv. UYU</small><strong>$ 8.448,00</strong></span>
+					</div>
+					<div class="macciones"><button class="btn ghost" type="button">Crear seguimiento</button><button class="btn primary" type="button">Enviar estado de cuenta</button></div>
+				</div>
+			</header>
+
+			<section class="zona z-controles">
+				<div class="zona-cab"><span class="dot"></span> Configuración del envío</div>
+				<div class="contenido">
+					<label class="control"><span>Modelo</span><span class="valor">Estado de cuenta <span class="pred">✓ predeterminada</span></span></label>
+					<label class="control"><span>Enviar desde</span><span class="valor">finanzas@vector.com.uy</span></label>
+					<label class="control"><span>Seguimiento</span><span class="valor">1 activo</span></label>
+					<label class="control"><span>WhatsApp</span><span class="valor" style="color: var(--alerta-texto)">Sin celular</span></label>
+				</div>
+			</section>
+
+			<section class="zona z-resumen">
+				<div class="zona-cab"><span class="dot"></span> Resumen del envío</div>
+				<div class="contenido">
+					<span class="dato"><small>Comprobantes</small><strong>3</strong></span>
+					<span class="dato"><small>Total</small><strong>$ 8.448,00</strong></span>
+					<span class="nota">Se envía toda la deuda del período · sin exclusiones temporales</span>
+				</div>
+			</section>
+
+			<section class="zona z-tabla">
+				<div class="zona-cab"><span class="dot"></span> Comprobantes en pesos <span class="extra">3 comprobantes</span></div>
+				<div class="contenido">
+					<div class="mtitulo"><h4>Detalle</h4><span class="solo-vencidos"><i></i> Enviar solo vencidos</span></div>
+					<table class="tabla">
+						<thead><tr><th>Emisión</th><th>Vencimiento</th><th>Plazo</th><th>Tipo / comprobante</th><th class="num">Importe</th><th class="num">Saldo</th><th>Aging</th><th class="num">Acciones</th></tr></thead>
+						<tbody>
+							<tr><td>15/09/2026</td><td>15/10/2026</td><td>30 d</td><td>Venta Crédito A-21266</td><td class="num">$ 2.816,00</td><td class="num">$ 2.816,00</td><td><span class="aging g61">61-90</span><span class="estado-aging vencida">Vencida 39 d</span></td><td class="num"><button class="icono" type="button">✉</button><button class="icono" type="button">🗑</button></td></tr>
+							<tr><td>14/10/2026</td><td>13/11/2026</td><td>30 d</td><td>Venta Crédito Alarma A-21630</td><td class="num">$ 2.816,00</td><td class="num">$ 2.816,00</td><td><span class="aging g31">31-60</span><span class="estado-aging vencida">Vencida 10 d</span></td><td class="num"><button class="icono" type="button">✉</button><button class="icono" type="button">🗑</button></td></tr>
+							<tr><td>13/11/2026</td><td>13/12/2026</td><td>30 d</td><td>Venta Crédito Alarma A-22127</td><td class="num">$ 2.816,00</td><td class="num">$ 2.816,00</td><td><span class="aging g1">1-30</span><span class="estado-aging vigente">Faltan 20 d</span></td><td class="num"><button class="icono" type="button">✉</button><button class="icono" type="button">🗑</button></td></tr>
+						</tbody>
+					</table>
+				</div>
+			</section>
+
+			<section class="zona z-totales">
+				<div class="zona-cab"><span class="dot"></span> Total a enviar</div>
+				<div class="contenido">
+					<div class="etiqueta"><strong>Sin exclusiones temporales</strong><small>Se envía el saldo pendiente del período</small></div>
+					<div class="cifras">
+						<span><small>Importe emitido</small><strong>$ 8.448,00</strong></span>
+						<span class="enviar"><small>A enviar</small><strong>$ 8.448,00</strong></span>
+					</div>
+				</div>
+			</section>
+
+			<section class="zona z-destinatarios">
+				<div class="zona-cab"><span class="dot"></span> Destinatarios <span class="extra">1 mail</span></div>
+				<div class="contenido">
+					<span class="destinatario"><i>CF</i> claudio.fuentes@email.com</span>
+					<button class="btn ghost" type="button">+ Agregar destinatario</button>
+				</div>
+			</section>
+		</div>
+	</section>
+</div>
+</body>
+</html>

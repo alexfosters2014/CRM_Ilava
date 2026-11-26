@@ -1,0 +1,27 @@
+# Dependencias y artefactos: se generan dentro de la imagen.
+node_modules
+.svelte-kit
+build
+
+# Secretos: las credenciales viven en el host y se inyectan en runtime
+# (scripts/levantar.ps1) o las define el Dockerfile con valores internos del pod.
+.env
+.env.*
+!.env.example
+
+# Credenciales de la sesion de WhatsApp (Baileys): equivalen a la cuenta.
+# Nunca deben viajar en el contexto de build.
+.whatsapp-auth
+
+# Pruebas y reportes: no hacen falta para compilar la imagen.
+tests
+test-results
+playwright-report
+coverage
+*.log
+
+# Metadatos de Docker: solo describen el build, no se copian a la imagen.
+Dockerfile
+Dockerfile.*
+.dockerignore
+README.md

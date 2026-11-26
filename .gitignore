@@ -1,0 +1,55 @@
+# ============================================================================
+# Secretos y credenciales locales
+# ============================================================================
+# Plantillas SI se versionan; los valores reales NO.
+.env
+.env.*
+!.env.example
+
+# Entorno del Lanzador Directo (desarrollo): contiene SMTP_PASS, CORREO_CLAVE,
+# GMAIL_CLIENT_SECRET, BETTER_AUTH_SECRET y la clave de PostgreSQL en texto
+# plano. Nunca debe entrar al repositorio.
+lanzador-directo.env
+
+# Credenciales de la sesion de WhatsApp (Baileys): equivalen a la cuenta.
+.whatsapp-auth/
+
+# ============================================================================
+# Dependencias y artefactos de build
+# ============================================================================
+node_modules/
+.svelte-kit/
+build/
+.output/
+dist/
+.cache/
+
+# ============================================================================
+# Pruebas y reportes
+# ============================================================================
+test-results/
+playwright-report/
+blob-report/
+coverage/
+
+# ============================================================================
+# Logs
+# ============================================================================
+*.log
+.lanzador/
+
+# ============================================================================
+# Sistema operativo y editores
+# ============================================================================
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# ============================================================================
+# Varios
+# ============================================================================
+*.timestamp-*
+*.zip

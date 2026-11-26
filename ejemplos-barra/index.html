@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Barra de lotes · tres direcciones</title>
+<style>
+	:root {
+		color-scheme: dark;
+		--fondo-app: #070d1a;
+		--superficie: #0b1322;
+		--superficie-alta: #111c31;
+		--superficie-suave: #0e1729;
+		--borde: #1d2a42;
+		--borde-suave: #16223a;
+		--borde-fuerte: #2b3b5c;
+		--texto: #e8eef8;
+		--texto-suave: #94a3b8;
+		--texto-tenue: #6b7a94;
+		--primario-tenue: #1e1b4b;
+		--primario-borde: #4c1d95;
+		--primario-texto: #c4b5fd;
+		--accion-gradiente: linear-gradient(135deg, #8b5cf6, #d946ef);
+	}
+	* { box-sizing: border-box; }
+	body {
+		margin: 0;
+		padding: 32px clamp(16px, 4vw, 56px) 56px;
+		background: var(--fondo-app);
+		color: var(--texto);
+		font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+	}
+	.encabezado { max-width: 70rem; margin: 0 auto 28px; }
+	.encabezado h1 { margin: 0 0 6px; font-size: clamp(1.2rem, 2vw, 1.6rem); }
+	.encabezado p { margin: 0; color: var(--texto-suave); font-size: 0.85rem; max-width: 52rem; }
+	.encabezado code { padding: 1px 5px; border-radius: 4px; background: var(--superficie-alta); color: var(--primario-texto); font-size: 0.78rem; }
+	.grid { display: grid; gap: 22px; max-width: 70rem; margin: 0 auto; }
+	.caso {
+		border: 1px solid var(--borde);
+		border-radius: 18px;
+		background: var(--fondo-app);
+		overflow: hidden;
+	}
+	.caso-cabecera {
+		display: flex;
+		align-items: baseline;
+		justify-content: space-between;
+		gap: 16px;
+		padding: 16px 18px 12px;
+	}
+	.caso-cabecera h2 { margin: 0; font-size: 0.95rem; }
+	.caso-cabecera span { color: var(--texto-tenue); font-size: 0.72rem; }
+	.caso-cabecera strong { color: var(--primario-texto); }
+	.mini-tabla { padding: 0 18px; }
+	.mini-tabla table { width: 100%; border-collapse: collapse; font-size: 11.5px; }
+	.mini-tabla th {
+		padding: 7px 8px;
+		text-align: left;
+		font-size: 9px;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+		color: var(--texto-tenue);
+		border-bottom: 1px solid var(--borde);
+	}
+	.mini-tabla td { padding: 8px; border-bottom: 1px solid var(--borde-suave); color: #cbd5e1; }
+	.mini-tabla tbody tr:nth-child(even) { background: #0a1220; }
+	.mini-tabla .num { text-align: right; font-variant-numeric: tabular-nums; }
+	.escenario {
+		display: flex;
+		justify-content: center;
+		padding: 18px 18px 22px;
+		background:
+			linear-gradient(180deg, rgba(7, 13, 26, 0) 0%, rgba(7, 13, 26, 0.7) 100%),
+			repeating-linear-gradient(180deg, #08101f 0 40px, #0a1322 40px 41px);
+	}
+	/* ---------- base de la barra ---------- */
+	.barra {
+		display: flex;
+		align-items: center;
+		gap: 12px;
+		padding: 9px;
+		border-radius: 16px;
+		background: linear-gradient(180deg, #131f36 0%, #0f1a2e 100%);
+		box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+	}
+	.contador {
+		padding: 10px 14px;
+		border: 1px solid var(--borde);
+		border-radius: 10px;
+		background: var(--superficie-suave);
+		color: var(--texto);
+		font-size: 13px;
+		font-weight: 800;
+		white-space: nowrap;
+	}
+	.acciones { display: flex; gap: 8px; }
+	.accion {
+		display: grid;
+		justify-items: center;
+		gap: 4px;
+		min-width: 106px;
+		padding: 8px 12px;
+		border: 1px solid var(--borde);
+		border-radius: 12px;
+		background: var(--superficie);
+		color: var(--texto-suave);
+		font: inherit;
+		font-size: 11px;
+		font-weight: 800;
+		cursor: pointer;
+		transition: background 0.16s ease, border-color 0.16s ease, color 0.16s ease,
+			box-shadow 0.16s ease, transform 0.16s ease;
+	}
+	.accion svg { width: 19px; height: 19px; }
+	/* ---------- A · bandeja elevada ---------- */
+	.caso-a .barra {
+		border: 1px solid var(--borde-fuerte);
+		box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55), 0 0 40px rgba(139, 92, 246, 0.1);
+	}
+	.caso-a .accion:hover,
+	.caso-a .accion.is-hover {
+		border-color: transparent;
+		background: var(--accion-gradiente);
+		color: #fff;
+		box-shadow: 0 10px 24px rgba(124, 58, 237, 0.35);
+		transform: translateY(-1px);
+	}
+	/* ---------- B · riel índigo ---------- */
+	.caso-b .barra {
+		position: relative;
+		padding: 9px 9px 9px 20px;
+		border: 1px solid rgba(139, 92, 246, 0.4);
+		background: linear-gradient(180deg, #121d33 0%, #0d1729 100%);
+		box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55), 0 0 40px rgba(139, 92, 246, 0.14);
+	}
+	.caso-b .barra::before {
+		content: '';
+		position: absolute;
+		left: 0;
+		top: 14px;
+		bottom: 14px;
+		width: 3px;
+		border-radius: 0 3px 3px 0;
+		background: linear-gradient(180deg, #8b5cf6, #d946ef);
+		box-shadow: 0 0 18px rgba(139, 92, 246, 0.55);
+	}
+	.caso-b .contador { border-color: var(--primario-borde); background: #111a2f; }
+	.caso-b .accion:hover,
+	.caso-b .accion.is-hover {
+		border-color: transparent;
+		background: var(--accion-gradiente);
+		color: #fff;
+		box-shadow: 0 10px 24px rgba(124, 58, 237, 0.35);
+		transform: translateY(-1px);
+	}
+	/* ---------- C · primario fijo ---------- */
+	.caso-c .barra { border: 1px solid var(--borde-fuerte); }
+	.caso-c .accion:hover,
+	.caso-c .accion.is-hover {
+		border-color: var(--primario-borde);
+		background: var(--primario-tenue);
+		color: var(--primario-texto);
+	}
+	.caso-c .accion.primaria {
+		border-color: transparent;
+		background: var(--accion-gradiente);
+		color: #fff;
+		box-shadow: 0 10px 24px rgba(124, 58, 237, 0.32);
+	}
+	.caso-c .accion.primaria:hover {
+		border-color: transparent;
+		background: var(--accion-gradiente);
+		color: #fff;
+		filter: brightness(1.06);
+		transform: translateY(-1px);
+	}
+</style>
+</head>
+<body>
+	<header class="encabezado">
+		<h1>Tres direcciones para la barra de lotes</h1>
+		<p>
+			Las tres usan solo los tokens de la app (navy, índigo, violeta de marca).
+			El botón “Enviar mails” muestra el hover simulado en A y B; en C el
+			primario es fijo y “Asignar grupo” muestra el hover neutro.
+		</p>
+	</header>
+
+	<div class="grid">
+		<section class="caso caso-a">
+			<div class="caso-cabecera">
+				<h2>A · Bandeja elevada</h2>
+				<span><strong>Recomendada.</strong> Se despega por plano y sombra, no por material.</span>
+			</div>
+			<div class="mini-tabla">
+				<table>
+					<thead><tr><th>Comprobante</th><th>Vencimiento</th><th class="num">Saldo</th></tr></thead>
+					<tbody>
+						<tr><td>Venta Crédito A-38496</td><td>30/08/2026</td><td class="num">$ 54.846,86</td></tr>
+						<tr><td>Venta Crédito A-39356</td><td>14/10/2026</td><td class="num">$ 193.925,72</td></tr>
+						<tr><td>Nota de Crédito A-3889</td><td>26/09/2026</td><td class="num">-$ 19.207,52</td></tr>
+					</tbody>
+				</table>
+			</div>
+			<div class="escenario">
+				<div class="barra">
+					<span class="contador">1 servicio seleccionado</span>
+					<div class="acciones">
+						<button class="accion is-hover" type="button">
+							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/></svg>
+							Enviar mails
+						</button>
+						<button class="accion" type="button">
+							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 2 9 5-9 5-9-5 9-5Z"/><path d="m3 12 9 5 9-5"/><path d="m3 17 9 5 9-5"/></svg>
+							Asignar grupo
+						</button>
+						<button class="accion" type="button">
+							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+							Limpiar
+						</button>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<section class="caso caso-b">
+			<div class="caso-cabecera">
+				<h2>B · Riel índigo</h2>
+				<span>Misma bandeja, con un riel de marca. Más presencia, sin cambiar de material.</span>
+			</div>
+			<div class="mini-tabla">
+				<table>
+					<thead><tr><th>Comprobante</th><th>Vencimiento</th><th class="num">Saldo</th></tr></thead>
+					<tbody>
+						<tr><td>Venta Crédito A-38496</td><td>30/08/2026</td><td class="num">$ 54.846,86</td></tr>
+						<tr><td>Venta Crédito A-39356</td><td>14/10/2026</td><td class="num">$ 193.925,72</td></tr>
+						<tr><td>Nota de Crédito A-3889</td><td>26/09/2026</td><td class="num">-$ 19.207,52</td></tr>
+					</tbody>
+				</table>
+			</div>
+			<div class="escenario">
+				<div class="barra">
+					<span class="contador">1 servicio seleccionado</span>
+					<div class="acciones">
+						<button class="accion is-hover" type="button">
+							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/></svg>
+							Enviar mails
+						</button>
+						<button class="accion" type="button">
+							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 2 9 5-9 5-9-5 9-5Z"/><path d="m3 12 9 5 9-5"/><path d="m3 17 9 5 9-5"/></svg>
+							Asignar grupo
+						</button>
+						<button class="accion" type="button">
+							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+							Limpiar
+						</button>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<section class="caso caso-c">
+			<div class="caso-cabecera">
+				<h2>C · Primario fijo</h2>
+				<span>La acción principal lleva siempre el gradiente de la app; el resto, hover índigo.</span>
+			</div>
+			<div class="mini-tabla">
+				<table>
+					<thead><tr><th>Comprobante</th><th>Vencimiento</th><th class="num">Saldo</th></tr></thead>
+					<tbody>
+						<tr><td>Venta Crédito A-38496</td><td>30/08/2026</td><td class="num">$ 54.846,86</td></tr>
+						<tr><td>Venta Crédito A-39356</td><td>14/10/2026</td><td class="num">$ 193.925,72</td></tr>
+						<tr><td>Nota de Crédito A-3889</td><td>26/09/2026</td><td class="num">-$ 19.207,52</td></tr>
+					</tbody>
+				</table>
+			</div>
+			<div class="escenario">
+				<div class="barra">
+					<span class="contador">1 servicio seleccionado</span>
+					<div class="acciones">
+						<button class="accion primaria" type="button">
+							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/></svg>
+							Enviar mails
+						</button>
+						<button class="accion is-hover" type="button">
+							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 2 9 5-9 5-9-5 9-5Z"/><path d="m3 12 9 5 9-5"/><path d="m3 17 9 5 9-5"/></svg>
+							Asignar grupo
+						</button>
+						<button class="accion" type="button">
+							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+							Limpiar
+						</button>
+					</div>
+				</div>
+			</div>
+		</section>
+	</div>
+</body>
+</html>

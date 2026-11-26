@@ -1,0 +1,116 @@
+/*
+ * Tema claro.
+ *
+ * Conserva la paleta original del CRM. La apariencia de filas guardada en la
+ * base se inyecta sólo para este tema (ver layout raíz), así el oscuro usa
+ * sus propios valores.
+ */
+[data-tema='claro'] {
+	color-scheme: light;
+
+	--indigo-500: #6366f1;
+	--indigo-600: #4f46e5;
+	--indigo-700: #4338ca;
+	--navy-900: #050b1f;
+	--navy-800: #0a1435;
+	--navy-700: #101d4a;
+	--cyan-400: #22d3ee;
+	--cyan-300: #67e8f9;
+	--verde-500: #22c55e;
+
+	--gris-50: #f8fafc;
+	--gris-100: #f1f5f9;
+	--gris-200: #e2e8f0;
+	--gris-400: #94a3b8;
+	--gris-500: #64748b;
+	--gris-700: #334155;
+	--gris-900: #0f172a;
+
+	--fondo-app: #f1f5f9;
+	--superficie: #ffffff;
+	--superficie-alta: #f8faff;
+	--superficie-suave: #f1f5f9;
+	--superficie-hover: #eef2ff;
+	--superficie-panel: rgba(255, 255, 255, 0.78);
+	--velo-modal: rgba(19, 27, 56, 0.35);
+	--modal-fondo: #ffffff;
+	--modal-cabecera-fondo: #f8faff;
+	--borde: #d1dbf0;
+	--borde-suave: #e3e8f4;
+	--borde-fuerte: #c7d2fe;
+
+	/* Barra de lotes: marco flotante, versión clara. */
+	--barra-lotes-fondo: linear-gradient(180deg, #ffffff 0%, #eef2f8 100%);
+	--barra-lotes-borde: #b9c4d6;
+	--barra-lotes-anillo: #f1f5f9;
+	--barra-lotes-anillo-borde: #c7d2e3;
+	--barra-lotes-sombra: rgba(15, 23, 42, 0.18);
+	--barra-lotes-chip: #f1f5f9;
+	--barra-lotes-chip-borde: #d1dbf0;
+	--barra-lotes-info: #17213d;
+	--barra-lotes-tecla: #ffffff;
+	--barra-lotes-tecla-borde: #d1dbf0;
+	--barra-lotes-tecla-texto: #334155;
+	--barra-lotes-hover: linear-gradient(135deg, #8b5cf6, #d946ef);
+	--barra-lotes-glow: rgba(124, 58, 237, 0.3);
+
+	--texto: #17213d;
+	--texto-suave: #68758a;
+	--texto-tenue: #94a3b8;
+	--texto-inverso: #ffffff;
+
+	--primario: #5048f5;
+	--primario-fuerte: #4338ca;
+	--primario-texto: #3730a3;
+	--primario-tenue: #eef2ff;
+	--primario-borde: #c7d2fe;
+	--accion-gradiente: linear-gradient(135deg, #5048f5, #6d5ef8);
+	--tabla-gradiente: linear-gradient(100deg, #3037b6, #078ddf);
+	--tabla-gradiente-aviso: linear-gradient(100deg, #a16207, #d97706);
+	--detalle-gradiente: linear-gradient(105deg, #1d2a5c 0%, #24398a 55%, #0d63b8 100%);
+	--fila-grupo-fondo: #f1f5f9;
+	--fila-grupo-texto: #17213d;
+
+	--exito: #22c55e;
+	--exito-texto: #15803d;
+	--exito-tenue: #f0fdf4;
+	--exito-borde: #bbf7d0;
+	--alerta: #f59e0b;
+	--alerta-texto: #b45309;
+	--alerta-tenue: #fffbeb;
+	--alerta-borde: #fde68a;
+	--peligro: #ef4444;
+	--peligro-texto: #b91c1c;
+	--peligro-tenue: #fef2f2;
+	--peligro-borde: #fecaca;
+	--info: #0ea5e9;
+	--info-texto: #075985;
+	--info-tenue: #e0f2fe;
+	--info-borde: #bae6fd;
+	--teal-texto: #0f766e;
+	--teal-tenue: #f0fdfa;
+	--teal-borde: #5eead4;
+	--rosa-texto: #be185d;
+	--rosa-tenue: #fce7f3;
+	--rosa-borde: #fbcfe8;
+
+	--sombra-panel: 0 12px 30px rgba(49, 64, 129, 0.08);
+	--sombra-flotante: 0 24px 60px rgba(19, 27, 56, 0.35);
+	--sombra-modal: 0 28px 70px rgba(19, 27, 56, 0.35);
+	--chevron-select: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364758b' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+	--foco: #4f46e5;
+
+	--fila-par-fondo: #e2e9f7;
+	--fila-par-texto: #111827;
+	--fila-impar-fondo: #ffffff;
+	--fila-impar-texto: #111827;
+	--fila-hover-fondo: rgba(79, 70, 229, 0.05);
+	--tabla-linea-color: #e3e8f4;
+	--fila-padding-y: 2px;
+	--lista-linea-color: #e3e8f4;
+	--lista-linea-grosor: 1px;
+
+	--color-fondo: var(--fondo-app);
+	--color-texto: var(--texto);
+	--color-primario: var(--primario);
+}

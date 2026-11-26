@@ -1,0 +1,130 @@
+/*
+ * Tema oscuro (por defecto).
+ *
+ * Solo tokens de color. Los componentes consumen var(--token) y no conocen
+ * valores concretos, así el cambio de tema no duplica estilos.
+ */
+:root,
+[data-tema='oscuro'] {
+	color-scheme: dark;
+
+	/* Marca */
+	--indigo-500: #a78bfa;
+	--indigo-600: #8b5cf6;
+	--indigo-700: #7c3aed;
+	--navy-900: #050b1f;
+	--navy-800: #0a1435;
+	--navy-700: #101d4a;
+	--cyan-400: #22d3ee;
+	--cyan-300: #67e8f9;
+	--verde-500: #34d399;
+
+	/* Neutros heredados */
+	--gris-50: #0b1322;
+	--gris-100: #070d1a;
+	--gris-200: #1d2a42;
+	--gris-400: #94a3b8;
+	--gris-500: #94a3b8;
+	--gris-700: #cbd5e1;
+	--gris-900: #e8eef8;
+
+	/* Superficies */
+	--fondo-app: #070d1a;
+	--superficie: #0b1322;
+	--superficie-alta: #111c31;
+	--superficie-suave: #0e1729;
+	--superficie-hover: #16233c;
+	--superficie-panel: rgba(11, 19, 34, 0.9);
+	--velo-modal: rgba(4, 10, 22, 0.58);
+	--modal-fondo: #16233c;
+	--modal-cabecera-fondo: #0b1322;
+	--borde: #1d2a42;
+	--borde-suave: #16223a;
+	--borde-fuerte: #2b3b5c;
+
+	/*
+	 * Barra de lotes: marco flotante (opción F).
+	 * Superficie navy elevada + anillo oscuro + filo claro. El violeta es
+	 * SOLO el hover de los botones; no hay violeta en reposo.
+	 */
+	--barra-lotes-fondo: linear-gradient(180deg, #1a2947 0%, #141f36 100%);
+	--barra-lotes-borde: #3f5680;
+	--barra-lotes-anillo: #0b1322;
+	--barra-lotes-anillo-borde: #22314f;
+	--barra-lotes-sombra: rgba(0, 0, 0, 0.6);
+	--barra-lotes-chip: #0e1729;
+	--barra-lotes-chip-borde: #2b3b5c;
+	--barra-lotes-info: #e8eef8;
+	--barra-lotes-tecla: #0f1b30;
+	--barra-lotes-tecla-borde: #2b3b5c;
+	--barra-lotes-tecla-texto: #c3d0e6;
+	--barra-lotes-hover: linear-gradient(135deg, #8b5cf6, #d946ef);
+	--barra-lotes-glow: rgba(124, 58, 237, 0.35);
+
+	/* Texto */
+	--texto: #e8eef8;
+	--texto-suave: #94a3b8;
+	--texto-tenue: #6b7a94;
+	--texto-inverso: #ffffff;
+
+	/* Acción y marca */
+	--primario: #8b5cf6;
+	--primario-fuerte: #7c3aed;
+	--primario-texto: #c4b5fd;
+	--primario-tenue: #1e1b4b;
+	--primario-borde: #4c1d95;
+	--accion-gradiente: linear-gradient(135deg, #8b5cf6, #d946ef);
+	--tabla-gradiente: linear-gradient(100deg, #1e4fd8, #0a6bd6);
+	--tabla-gradiente-aviso: linear-gradient(100deg, #a65f0b, #c2740b);
+	--detalle-gradiente: linear-gradient(105deg, #1e4fd8 0%, #0a6bd6 100%);
+	--fila-grupo-fondo: #a65f0b;
+	--fila-grupo-texto: #fff7ed;
+
+	/* Estados */
+	--exito: #34d399;
+	--exito-texto: #6ee7b7;
+	--exito-tenue: #052e2b;
+	--exito-borde: #115e59;
+	--alerta: #fbbf24;
+	--alerta-texto: #fcd34d;
+	--alerta-tenue: #3b2a08;
+	--alerta-borde: #92400e;
+	--peligro: #f87171;
+	--peligro-texto: #fca5a5;
+	--peligro-tenue: #3f1116;
+	--peligro-borde: #7f1d1d;
+	--info: #38bdf8;
+	--info-texto: #7dd3fc;
+	--info-tenue: #0b2a3f;
+	--info-borde: #075985;
+	--teal-texto: #5eead4;
+	--teal-tenue: #042f2e;
+	--teal-borde: #115e59;
+	--rosa-texto: #f9a8d4;
+	--rosa-tenue: #4a1030;
+	--rosa-borde: #9d174d;
+
+	/* Sombras y foco */
+	--sombra-panel: 0 18px 45px rgba(0, 0, 0, 0.45);
+	--sombra-flotante: 0 24px 60px rgba(0, 0, 0, 0.55);
+	--sombra-modal: 0 0 0 2px rgba(255, 255, 255, 0.18), 0 0 24px 4px rgba(255, 255, 255, 0.08),
+		0 28px 80px rgba(0, 0, 0, 0.65);
+	--chevron-select: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a7b3c7' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+	--foco: #a78bfa;
+
+	/* Tablas y listas */
+	--fila-par-fondo: #16233c;
+	--fila-par-texto: #e8eef8;
+	--fila-impar-fondo: #0d1729;
+	--fila-impar-texto: #e8eef8;
+	--fila-hover-fondo: rgba(139, 92, 246, 0.09);
+	--tabla-linea-color: #1a2740;
+	--fila-padding-y: 2px;
+	--lista-linea-color: #1a2740;
+	--lista-linea-grosor: 1px;
+
+	/* Alias usados por pantallas viejas */
+	--color-fondo: var(--fondo-app);
+	--color-texto: var(--texto);
+	--color-primario: var(--primario);
+}

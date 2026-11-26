@@ -1,0 +1,136 @@
+/*
+ * Capa: Estilos (base global)
+ *
+ * CSS propio, SIN frameworks. Reset, estructura y utilidades mínimas.
+ * Los colores viven en `tema-oscuro.css` y `tema-claro.css`; los componentes
+ * consumen tokens semánticos y nunca valores de un modo concreto.
+ */
+
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+:root {
+	--radio-md: 0.75rem;
+	--radio-lg: 1.25rem;
+
+	/* Transición del menú (la doc de diseño pide cubic-bezier(0.4,0,0.2,1)) */
+	--transicion-menu: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+html {
+	background: var(--fondo-app);
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+
+body {
+	font-family:
+		system-ui,
+		-apple-system,
+		'Segoe UI',
+		Roboto,
+		sans-serif;
+	color: var(--texto);
+	background: var(--fondo-app);
+	-webkit-font-smoothing: antialiased;
+}
+
+/* Selects nativos: chevron propio y etiqueta arriba. */
+select:not([multiple]) {
+	appearance: none;
+	padding-right: 2rem;
+	background-image: var(--chevron-select);
+	background-repeat: no-repeat;
+	background-position: right 0.7rem center;
+	background-size: 0.65rem;
+}
+
+label:has(> select) {
+	gap: 1px;
+	font-size: 0.6rem;
+	font-weight: 800;
+	letter-spacing: 0.07em;
+	text-transform: uppercase;
+}
+
+/* Scrollbars coherentes con el tema activo. */
+* {
+	scrollbar-width: thin;
+	scrollbar-color: var(--borde-fuerte) transparent;
+}
+
+::-webkit-scrollbar {
+	width: 10px;
+	height: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+	border-radius: 999px;
+	background: var(--borde-fuerte);
+}
+
+::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+/* Fondo tecnológico sutil para las pantallas (puntos tenues). */
+.patron-puntos {
+	background-image: radial-gradient(rgba(139, 92, 246, 0.18) 1px, transparent 1px);
+	background-size: 22px 22px;
+}
+
+/*
+ * Tablas dentro de modales: mismo lenguaje visual que las tablas de pantalla.
+ * Se aplica por rol y no por clase para no tocar el marcado de cada modal:
+ * encabezado igual al de las tablas, filas alternadas y hover en forma de velo.
+ */
+[role='dialog'] table {
+	border-collapse: collapse;
+	background: var(--superficie);
+}
+
+[role='dialog'] thead th {
+	background: var(--tabla-gradiente);
+	color: var(--texto-inverso);
+}
+
+[role='dialog'] th,
+[role='dialog'] td {
+	border-bottom: var(--tabla-linea-grosor, 1px) solid var(--tabla-linea-color, var(--borde-suave));
+}
+
+[role='dialog'] tbody tr {
+	background: var(--fila-impar-fondo, transparent);
+	color: var(--fila-impar-texto, var(--texto));
+}
+
+[role='dialog'] tbody tr:nth-child(even) {
+	background: var(--fila-par-fondo, var(--superficie-suave));
+	color: var(--fila-par-texto, var(--texto));
+}
+
+[role='dialog'] tbody tr:hover {
+	background-image: linear-gradient(
+		var(--fila-hover-fondo, rgba(139, 92, 246, 0.09)),
+		var(--fila-hover-fondo, rgba(139, 92, 246, 0.09))
+	);
+}
+
+/* Encabezados y pies de modal: una sola superficie para todos. */
+[role='dialog'] .modal-cabecera,
+[role='dialog'] .modal-cab,
+[role='dialog'] header.cabecera {
+	background: var(--modal-cabecera-fondo);
+}
+
+[role='dialog'] .modal-pie,
+[role='dialog'] footer.pie {
+	background: var(--modal-cabecera-fondo);
+}
