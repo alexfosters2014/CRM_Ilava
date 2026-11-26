@@ -1,0 +1,25 @@
+# Overlay de DESARROLLO del backend: se combina con compose-backend.yml.
+#
+#   docker compose --env-file ../servidor/.env \
+#     -f compose-backend.yml -f compose-backend.dev.yml up -d --build
+#
+# Mantiene la misma forma que produccion (PostgreSQL adentro, mismos volumenes,
+# mismas variables) y solo cambia como corre la app: Vite con HMR y el codigo
+# montado desde el anfitrion.
+services:
+  backend:
+    build:
+      target: dev
+    image: crm-backend-dev
+    environment:
+      # SvelteKit necesita esto para habilitar el modo desarrollo y el HMR.
+      NODE_ENV: development
+      # Los eventos de archivos no cruzan el bind mount de Windows: Vite consulta
+      # el disco periodicamente (ver vite.config.ts).
+      VITE_USE_POLLING: "true"
+    volumes:
+      # El codigo del anfitrion manda: editar un .svelte recarga al instante.
+      - ../servidor:/app
+      # Volumen anonimo: evita que el mount de arriba tape el node_modules de
+      # la imagen (sino Vite no encuentra ni sus propias dependencias).
+      - /app/node_modules

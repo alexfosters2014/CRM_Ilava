@@ -19,6 +19,9 @@ services:
     build:
       context: ../servidor
       dockerfile: Dockerfile.db
+      # `production` es la etapa con el artefacto compilado. Para desarrollo,
+      # infra/compose-backend.dev.yml cambia el target a `dev`.
+      target: production
     image: crm-backend
     container_name: crm-backend
     # Credenciales SMTP, Gmail, CORREO_CLAVE y BETTER_AUTH_SECRET del host.

@@ -12,6 +12,9 @@ services:
   frontend:
     build:
       context: ../cliente
+      # `production` compila y sirve con adapter-node; el overlay .dev.yml
+      # cambia el target a `dev` (Vite con HMR).
+      target: production
     image: crm-frontend
     container_name: crm-frontend
     environment:

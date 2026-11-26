@@ -1,22 +1,27 @@
-# Etapa 1: compilar el proyecto SvelteKit
+# Imagen del backend: PostgreSQL + API + Chromium en un solo contenedor.
+#
+# Un solo Dockerfile, varias etapas. Docker no tiene "if dev / else prod": se
+# elige apuntando a una etapa con --target (o `build.target` en compose).
+# `runtime` es la base compartida, asi el sistema operativo, Node, Chromium y
+# PostgreSQL son EXACTAMENTE los mismos en los dos modos. Lo unico que cambia
+# es como se ejecuta la app: `node build` (production) o Vite con HMR (dev).
+
+# --- build: compila con las dependencias de desarrollo ---------------------
 FROM node:22-bookworm AS build
 WORKDIR /app
 # Better Auth valida el secreto al analizar las rutas durante el build. Esta
 # etapa se descarta, asi que un placeholder publico es seguro: el secreto real
-# entra por entorno en runtime (entrada.sh lo exige y aborta si falta). Nunca
-# se usa el valor de build en el artefacto final.
+# entra por entorno en runtime (entrada.sh lo exige y aborta si falta).
 ENV BETTER_AUTH_SECRET=build-placeholder-no-es-un-secreto
 COPY package*.json ./
 RUN npm ci --ignore-scripts
 COPY . .
 RUN npm run build
 
-# Etapa 2: contenedor con PostgreSQL + API corriendo juntos
-FROM postgres:17-bookworm
+# --- runtime: PostgreSQL + Node + Chromium (identico en dev y produccion) --
+FROM postgres:17-bookworm AS runtime
 
-# Node.js para ejecutar la API compilada.
-# Chromium + fuentes: se usan para exportar la carta HTML/CSS a PDF
-# (headless --print-to-pdf). Sin esto, el correo sale con la carta en el cuerpo.
+# Node.js para ejecutar la API; Chromium y fuentes para exportar la carta a PDF.
 RUN apt-get update \
 	&& apt-get install -y --no-install-recommends curl ca-certificates gnupg \
 	&& curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
@@ -24,20 +29,6 @@ RUN apt-get update \
 	&& rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
-
-# Artefactos de la API
-COPY --from=build /app/build ./build
-COPY --from=build /app/node_modules ./node_modules
-COPY --from=build /app/package.json ./package.json
-
-# Migraciones de Drizzle: el hook `init` del server las aplica y seedea los
-# datos de ejemplo al arrancar (Drizzle es la única fuente de verdad del
-# esquema y los datos; se eliminó sql/init.sql).
-COPY --from=build /app/drizzle ./drizzle
-
-# Punto de entrada que levanta PostgreSQL y la API
-COPY entrada.sh /usr/local/bin/entrada.sh
-RUN chmod +x /usr/local/bin/entrada.sh
 
 ENV NODE_ENV=production
 # La BD esta en el propio contenedor: se conecta por localhost
@@ -53,15 +44,41 @@ ENV PROTOCOL_HEADER=x-forwarded-proto
 ENV HOST_HEADER=x-forwarded-host
 # Better Auth: secreto para firmar cookies de sesion (>=32 caracteres).
 # Sin valor por defecto a proposito: un secreto dentro de la imagen es publico
-# y permitiria firmar cookies validas. `entrada.sh` aborta si no llega por
-# `podman run -e BETTER_AUTH_SECRET=...` (ver scripts/levantar.ps1).
+# y permitiria firmar cookies validas. Los entrypoints abortan si no llega por
+# entorno (`docker run -e BETTER_AUTH_SECRET=...` / servidor/.env).
 ENV BETTER_AUTH_SECRET=
 # URL publica del FRONTEND (el navegador habla con el frontend; el backend
 # reconstruye ese origin via forwarded-host). baseURL de Better Auth + CSRF.
 ENV BETTER_AUTH_URL=http://127.0.0.1:4173
 # Origenes del frontend confiables para Better Auth, separados por coma.
 ENV TRUSTED_ORIGINS=http://localhost:4173,http://127.0.0.1:4173
+# Credenciales de WhatsApp (Baileys). Montar un volumen persistente aca: sin
+# ellas hay que volver a escanear el QR en cada deploy.
+ENV WHATSAPP_AUTH_DIR=/app/.whatsapp-auth
 
 EXPOSE 3000
 
+# --- dev: Vite con HMR y el codigo montado --------------------------------
+# No copia `build`: Vite compila al vuelo. El codigo entra por bind mount desde
+# infra/compose-backend.dev.yml; node_modules queda en la imagen para no montar
+# cientos de MB desde el anfitrion.
+FROM runtime AS dev
+ENV NODE_ENV=development
+COPY --from=build /app/node_modules ./node_modules
+COPY --from=build /app/package.json ./package.json
+COPY entrada-dev.sh /usr/local/bin/entrada-dev.sh
+RUN chmod +x /usr/local/bin/entrada-dev.sh
+ENTRYPOINT ["/usr/local/bin/entrada-dev.sh"]
+
+# --- production: artefacto compilado --------------------------------------
+# Es la ultima etapa: `docker build` sin --target construye esta.
+FROM runtime AS production
+# Migraciones de Drizzle: el hook `init` del server las aplica y seedea los
+# datos de ejemplo al arrancar.
+COPY --from=build /app/build ./build
+COPY --from=build /app/node_modules ./node_modules
+COPY --from=build /app/package.json ./package.json
+COPY --from=build /app/drizzle ./drizzle
+COPY entrada.sh /usr/local/bin/entrada.sh
+RUN chmod +x /usr/local/bin/entrada.sh
 ENTRYPOINT ["/usr/local/bin/entrada.sh"]

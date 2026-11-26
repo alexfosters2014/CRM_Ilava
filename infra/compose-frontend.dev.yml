@@ -1,0 +1,19 @@
+# Overlay de DESARROLLO del frontend: se combina con compose-frontend.yml.
+#
+#   docker compose -f compose-frontend.yml -f compose-frontend.dev.yml up -d --build
+#
+# Misma URL (4173) que produccion; la diferencia es que corre Vite con HMR y el
+# codigo viene montado desde el anfitrion.
+services:
+  frontend:
+    build:
+      target: dev
+    image: crm-frontend-dev
+    environment:
+      NODE_ENV: development
+      # Los eventos de archivos no cruzan el bind mount de Windows: Vite consulta
+      # el disco periodicamente (ver vite.config.ts).
+      VITE_USE_POLLING: "true"
+    volumes:
+      - ../cliente:/app
+      - /app/node_modules

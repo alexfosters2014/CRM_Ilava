@@ -13,7 +13,8 @@ param(
     [switch]$Build,        # Fuerza la reconstruccion sin cache
     [switch]$SinNavegador, # No abre ninguna pestana del navegador
     [switch]$SinDocs,      # No abre la documentacion OpenAPI (solo el frontend)
-    [switch]$SinWatchdog   # No lanza el watchdog (al cerrar la consola quedan arriba)
+    [switch]$SinWatchdog,  # No lanza el watchdog (al cerrar la consola quedan arriba)
+    [switch]$Dev           # Modo desarrollo: Vite con HMR en vez del build compilado
 )
 
 $ErrorActionPreference = 'Stop'
@@ -22,9 +23,23 @@ Set-Location $raiz
 
 $composeBackend = Join-Path $raiz 'infra\compose-backend.yml'
 $composeFrontend = Join-Path $raiz 'infra\compose-frontend.yml'
+$composeBackendDev = Join-Path $raiz 'infra\compose-backend.dev.yml'
+$composeFrontendDev = Join-Path $raiz 'infra\compose-frontend.dev.yml'
 $archivoEnv = Join-Path $raiz 'servidor\.env'
 $contBackend = 'crm-backend'
 $contFrontend = 'crm-frontend'
+
+# Los overlays solo cambian `build.target` a `dev` y montan el codigo. Los
+# archivos base siguen siendo la unica definicion de red, volumenes, puertos y
+# variables: por eso desarrollo y produccion no pueden divergir.
+$overlaysBackend = @()
+$overlaysFrontend = @()
+if ($Dev) {
+    $overlaysBackend = @('-f', $composeBackendDev)
+    $overlaysFrontend = @('-f', $composeFrontendDev)
+}
+$cmdBackend = @('compose', '--env-file', $archivoEnv, '-f', $composeBackend) + $overlaysBackend
+$cmdFrontend = @('compose', '-f', $composeFrontend) + $overlaysFrontend
 
 function Paso($texto) { Write-Host "`n==> $texto" -ForegroundColor Cyan }
 function Ok($texto) { Write-Host "    $texto" -ForegroundColor Green }
@@ -110,6 +125,11 @@ try {
     }
     $version = (& docker version --format '{{.Server.Version}}' 2>$null)
     Ok "Docker $version respondiendo"
+    if ($Dev) {
+        Ok 'Modo: DESARROLLO (Vite con HMR, codigo montado desde el anfitrion)'
+    } else {
+        Ok 'Modo: PRODUCCION (artefacto compilado, imagen inmutable)'
+    }
 
     # Red compartida por los dos proyectos de compose. Es externa para que
     # bajar uno no corte la red del otro.
@@ -152,15 +172,15 @@ try {
 
     if ($Build) {
         Paso 'Reconstruyendo imagenes sin cache'
-        & docker compose --env-file $archivoEnv -f $composeBackend build --no-cache
+        & docker @cmdBackend build --no-cache
         if ($LASTEXITCODE -ne 0) { throw 'Fallo la construccion del backend.' }
-        & docker compose -f $composeFrontend build --no-cache
+        & docker @cmdFrontend build --no-cache
         if ($LASTEXITCODE -ne 0) { throw 'Fallo la construccion del frontend.' }
         Ok 'Imagenes reconstruidas'
     }
 
     Paso 'Levantando el backend (API + PostgreSQL en un contenedor)'
-    $argsBackend = @('compose', '--env-file', $archivoEnv, '-f', $composeBackend, 'up', '-d', '--build')
+    $argsBackend = $cmdBackend + @('up', '-d', '--build')
     if ($recrearPorEnv) { $argsBackend += '--force-recreate' }
     & docker @argsBackend
     if ($LASTEXITCODE -ne 0) { throw 'Fallo el arranque del backend.' }
@@ -178,7 +198,7 @@ try {
     Ok 'Web API + PostgreSQL respondiendo en http://127.0.0.1:8080'
 
     Paso 'Levantando el frontend'
-    & docker compose -f $composeFrontend up -d --build
+    & docker @cmdFrontend up -d --build
     if ($LASTEXITCODE -ne 0) { throw 'Fallo el arranque del frontend.' }
     Ok "Contenedor $contFrontend creado"
 

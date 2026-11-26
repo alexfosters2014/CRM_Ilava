@@ -14,17 +14,39 @@ Cada contenedor es un proyecto de compose independiente (`crm-backend` y
 `servidor/Dockerfile` (API sola, sin PostgreSQL) queda como alternativa para
 desplegar contra una base externa; el arranque por defecto no lo usa.
 
-## Entornos
+## Entornos: un stack, dos modos
 
-Un solo camino: **contenedores Docker**, con la misma imagen en desarrollo y en
-producción. Lo único que cambia entre entornos son las variables de entorno.
+La misma imagen, la misma red y las mismas variables para desarrollo y
+producción. Lo único que cambia es qué etapa del Dockerfile se construye y si el
+código va montado desde el anfitrión.
 
-| Entorno | Comando | Qué ejecuta | Puertos | Config |
+| Modo | Comando | Etapa | App | Código |
 |---|---|---|---|---|
-| **Desarrollo y producción** | `iniciar.bat` | `npm run build` + `node build` (adapter-node); PostgreSQL dentro del contenedor | 4173 / 8080 → 3000 / 5433 | `servidor/.env` |
+| **Producción** | `iniciar.bat` | `production` | `node build` | dentro de la imagen |
+| **Desarrollo** | `iniciar.bat -Dev` | `dev` | Vite con HMR | bind mount del anfitrión |
 
-Opcional, para iterar con HMR sin reconstruir imágenes: ver
-[Desarrollo local (sin contenedores)](#desarrollo-local-sin-contenedores).
+Las URLs (`4173`, `8080`), los puertos, la red, los volúmenes y las variables son
+idénticos en los dos modos. No hay dos Dockerfiles que puedan divergir: hay uno
+solo con etapas.
+
+### Cómo se elige la etapa
+
+Dockerfile **no tiene condicionales** (`if dev / else prod` no existe). Se usan
+etapas y `build.target`:
+
+- `servidor/Dockerfile.db`: `build` (compila) → `runtime` (PostgreSQL + Node +
+  Chromium, compartida por los dos modos) → `dev` / `production`.
+- `cliente/Dockerfile`: `build` → `dev` / `production`.
+- `infra/compose-backend.dev.yml` y `compose-frontend.dev.yml` son overlays que
+  cambian el target, montan el código y fuerzan `NODE_ENV=development`.
+
+### HMR en Docker sobre Windows
+
+Los eventos del sistema de archivos no cruzan el bind mount, así que el overlay
+de desarrollo activa `usePolling` en Vite. Tiene un costo: el watcher consume CPU
+mientras el modo dev está arriba. Si querés el bucle más liviano posible, corré
+los servidores de Vite en el anfitrión contra el PostgreSQL del contenedor (ver
+[Desarrollo local (sin contenedores)](#desarrollo-local-sin-contenedores)).
 
 ### Variables de entorno
 
@@ -88,6 +110,7 @@ iniciar.bat -SinNavegador  :: no abre el navegador
 iniciar.bat -SinDocs       :: no abre la pestaña de OpenAPI (solo el frontend)
 iniciar.bat -SinWatchdog   :: no lanza el watchdog (al cerrar la consola quedan arriba)
 iniciar.bat -Build         :: reconstruye todo sin cache
+iniciar.bat -Dev           :: modo desarrollo: Vite con HMR y código montado
 ```
 
 Al arrancar se abren **dos pestañas**: la web del frontend (`:4173`) y la

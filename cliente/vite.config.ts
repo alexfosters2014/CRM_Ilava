@@ -21,6 +21,20 @@ export default defineConfig(({ mode }) => {
 				},
 				adapter: adapter()
 			})
-		]
+		],
+		// En Docker sobre Windows los eventos del sistema de archivos no cruzan
+		// el bind mount: sin polling el HMR no se enteraria de los cambios. El
+		// overlay de desarrollo define VITE_USE_POLLING=true. Se ignora lo que
+		// Vite regenera solo para no saturar el event loop.
+		server: {
+			watch:
+				process.env.VITE_USE_POLLING === 'true'
+					? {
+							usePolling: true,
+							interval: 1000,
+							ignored: ['**/.svelte-kit/**', '**/build/**', '**/test-results/**']
+						}
+					: undefined
+		}
 	};
 });
