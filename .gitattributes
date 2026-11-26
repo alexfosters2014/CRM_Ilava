@@ -1,0 +1,28 @@
+# Normaliza los finales de linea para que el repo se comporte igual en
+# Windows, Linux y macOS.
+* text=auto eol=lf
+
+# Scripts de Windows: necesitan CRLF para que cmd.exe y PowerShell los lean.
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+
+# Scripts de shell y artefactos que se copian dentro de la imagen Linux:
+# con CRLF, `entrada.sh` falla al ejecutarse en el contenedor.
+*.sh text eol=lf
+Dockerfile text eol=lf
+Dockerfile.* text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.sql text eol=lf
+
+# Binarios: nunca se normalizan.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.xlsx binary
+*.zip binary
