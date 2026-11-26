@@ -17,6 +17,7 @@
 		agregarParticipante,
 		buscarServiciosTickets,
 		crearTicket,
+		enviarCorreoTicket,
 		enviarMensaje,
 		listarCatalogosTickets,
 		listarCuentasGmailTickets,
@@ -171,6 +172,13 @@
 	let fechaTexto = $state('');
 	let motivoFecha = $state('');
 	let guardandoDetalle = $state(false);
+
+	// Correo saliente del ticket (pestaña "Correo").
+	let correoAbierto = $state(false);
+	let correoPara = $state('');
+	let correoAsunto = $state('');
+	let correoCuerpo = $state('');
+	let enviandoCorreo = $state(false);
 
 	function mostrarAviso(texto: string) {
 		notificar(texto);
@@ -640,6 +648,53 @@
 		await tick();
 		scrollAlFinal();
 		await cargarLista(true);
+	}
+
+	/** Envía un correo del ticket y lo registra en su historial. */
+	async function enviarCorreoDetalle() {
+		if (!detalle || enviandoCorreo) return;
+
+		const para = correoPara
+			.split(/[,;\s]+/)
+			.map((valor) => valor.trim())
+			.filter(Boolean);
+
+		if (para.length === 0) {
+			mostrarAviso('Indicá al menos un destinatario.');
+			return;
+		}
+		if (correoAsunto.trim().length < 3) {
+			mostrarAviso('El asunto necesita al menos 3 caracteres.');
+			return;
+		}
+		if (correoCuerpo.trim().length < 3) {
+			mostrarAviso('El mensaje necesita al menos 3 caracteres.');
+			return;
+		}
+
+		enviandoCorreo = true;
+		try {
+			// Gmail API si hay una cuenta conectada (mantiene el hilo); si no,
+			// el backend usa la cuenta SMTP predeterminada.
+			const ticket = await enviarCorreoTicket(detalle.id, {
+				para,
+				asunto: correoAsunto.trim(),
+				cuerpo: correoCuerpo.trim(),
+				cuentaGmailId: cuentasGmail[0]?.id,
+				guardarEnHistorial: true
+			});
+			aplicarTicket(ticket);
+			correoPara = '';
+			correoAsunto = '';
+			correoCuerpo = '';
+			correoAbierto = false;
+			mostrarAviso('Correo enviado y registrado en el historial del ticket.');
+			await cargarLista(true);
+		} catch (error) {
+			mostrarAviso(textoError(error));
+		} finally {
+			enviandoCorreo = false;
+		}
 	}
 
 	async function agregarParticipanteDetalle(valor: string) {
@@ -1819,6 +1874,47 @@
 									<span>Los envíos guardan el hilo y el Message-ID para localizar la cadena.</span>
 								</div>
 							</div>
+							<div class="correo-acciones">
+								<button
+									type="button"
+									class="btn suave chico"
+									disabled={!detalle.permisos.enviarCorreo}
+									onclick={() => (correoAbierto = !correoAbierto)}
+								>
+									{correoAbierto ? 'Cancelar' : 'Redactar correo'}
+								</button>
+								{#if !detalle.permisos.enviarCorreo}
+									<span class="correo-nota">El ticket está cerrado: no admite correos.</span>
+								{/if}
+							</div>
+
+							{#if correoAbierto}
+								<div class="correo-form">
+									<label class="campo">
+										<span>Para (separados por coma)</span>
+										<input bind:value={correoPara} placeholder="cliente@ejemplo.com" autocomplete="off" />
+									</label>
+									<label class="campo">
+										<span>Asunto</span>
+										<input bind:value={correoAsunto} maxlength="250" />
+									</label>
+									<label class="campo">
+										<span>Mensaje</span>
+										<textarea bind:value={correoCuerpo} rows="5"></textarea>
+									</label>
+									<div class="correo-form-acciones">
+										<button
+											type="button"
+											class="btn primario chico"
+											onclick={enviarCorreoDetalle}
+											disabled={enviandoCorreo}
+										>
+											{enviandoCorreo ? 'Enviando…' : 'Enviar correo'}
+										</button>
+									</div>
+								</div>
+							{/if}
+
 							{#if detalle.correos.length === 0}
 								<div class="estado-vacio compacto">
 									<span class="icono-grande">{@html iconos.correo}</span>
@@ -2833,7 +2929,10 @@
 	.correo-conexion span { color: var(--info-texto); font-size: 0.58rem; }
 	.correo-conexion .btn { margin-left: auto; }
 	.correo-lista { margin-top: 0.45rem; }
-	.correo-item { display: grid; grid-template-columns: 1.6rem minmax(0, 1fr) auto; gap: 0.4rem; align-items: start; padding: 0.45rem 0.1rem; border-bottom: 1px solid var(--borde-suave); }
+	.correo-acciones { display: flex; align-items: center; gap: 0.5rem; margin-top: 0.5rem; }
+	.correo-nota { color: var(--texto-tenue); font-size: 0.56rem; }
+	.correo-form { display: grid; gap: 0.5rem; margin-top: 0.6rem; padding: 0.6rem; border: 1px solid var(--borde-suave); border-radius: 0.65rem; background: var(--superficie); }
+	.correo-form-acciones { display: flex; justify-content: flex-end; }	.correo-item { display: grid; grid-template-columns: 1.6rem minmax(0, 1fr) auto; gap: 0.4rem; align-items: start; padding: 0.45rem 0.1rem; border-bottom: 1px solid var(--borde-suave); }
 	.correo-dir { display: grid; place-items: center; width: 1.55rem; height: 1.55rem; border-radius: 50%; background: var(--info-tenue); color: var(--info-texto); }
 	.correo-dir.entrada { background: var(--exito-tenue); color: var(--exito-texto); }
 	.correo-dir :global(svg) { width: 0.75rem; height: 0.75rem; }
