@@ -14,15 +14,17 @@ Cada contenedor es un proyecto de compose independiente (`crm-backend` y
 `servidor/Dockerfile` (API sola, sin PostgreSQL) queda como alternativa para
 desplegar contra una base externa; el arranque por defecto no lo usa.
 
-## Entornos: desarrollo vs producción
+## Entornos
+
+Un solo camino: **contenedores Docker**, con la misma imagen en desarrollo y en
+producción. Lo único que cambia entre entornos son las variables de entorno.
 
 | Entorno | Comando | Qué ejecuta | Puertos | Config |
 |---|---|---|---|---|
-| **Desarrollo con HMR** | `lanzador-directo.bat` | `vite dev` en ambos proyectos; PostgreSQL nativo de Windows | 5173 / 8080 / 5432 | `lanzador-directo.env` |
-| **Desarrollo y producción con contenedores** | `iniciar.bat` | `npm run build` + `node build` (adapter-node), PostgreSQL dentro del contenedor | 4173 / 8080 → 3000 / 5433 | `servidor/.env` |
+| **Desarrollo y producción** | `iniciar.bat` | `npm run build` + `node build` (adapter-node); PostgreSQL dentro del contenedor | 4173 / 8080 → 3000 / 5433 | `servidor/.env` |
 
-El Lanzador Directo no compila y sirve para iterar con HMR. Los contenedores son el
-camino que refleja producción: misma imagen, mismas variables de entorno.
+Opcional, para iterar con HMR sin reconstruir imágenes: ver
+[Desarrollo local (sin contenedores)](#desarrollo-local-sin-contenedores).
 
 ### Variables de entorno
 
@@ -32,7 +34,6 @@ Todas las claves y accesos entran por entorno; **ninguna vive en el repositorio*
 |---|---|---|
 | `servidor/.env` | No (`.gitignore` y `.dockerignore`) | Credenciales reales: `BETTER_AUTH_SECRET`, `SMTP_*`, `CORREO_CLAVE`, `GMAIL_*` |
 | `servidor/.env.example` | Sí | Plantilla con todas las variables y valores de relleno |
-| `lanzador-directo.env` | No | Entorno del modo HMR (incluye la clave del PostgreSQL nativo) |
 
 Los valores propios del contenedor (`DATABASE_URL` en `localhost:5432`, `PORT`,
 `WHATSAPP_AUTH_DIR`) los fija `infra/compose-backend.yml`; el resto se hereda de
@@ -796,49 +797,19 @@ Rutas (`cliente/src/routes/`):
 
 ## Desarrollo local (sin contenedores)
 
-### Lanzador Directo
-
-Doble clic en `lanzador-directo.bat` (o `scripts\lanzador-directo.ps1`). Levanta API y
-frontend como procesos Node, sin contenedores, contra el PostgreSQL nativo de Windows.
-
-Toda la configuración vive en un único archivo en la raíz: **`lanzador-directo.env`**:
-
-```ini
-DATABASE_URL=postgres://crm:crm@localhost:5432/crmdb
-PUERTO_API=8080
-PUERTO_WEB=5173
-API_URL=http://localhost:8080
-BETTER_AUTH_URL=http://localhost:5173
-TRUSTED_ORIGINS=http://localhost:5173,http://127.0.0.1:5173
-BETTER_AUTH_SECRET=<secreto de sesión>
-SMTP_HOST=
-SMTP_PORT=587
-SMTP_USER=
-SMTP_PASS=
-SMTP_FROM=
-```
-
-El lanzador copia esas claves al entorno de los dos procesos. Vite aplica
-`process.env` después de los `.env`, así que este archivo manda sobre
-`servidor/.env` y `cliente/.env` sin necesidad de duplicar credenciales.
-
-Qué hace al arrancar: verifica Node, lee la configuración, comprueba que PostgreSQL
-acepte conexiones, valida que 8080 y 5173 estén libres, instala dependencias si falta
-`node_modules`, inicia la API (que aplica migraciones y seed), espera `/api/salud`,
-inicia el frontend y abre el navegador. Al salir con Ctrl+C o cerrar la consola,
-detiene los dos árboles de procesos. Los logs quedan en `.lanzador\`.
-
-Flags: `-SinNavegador`, `-SinDocs`, `-Instalar`.
-
-### Arranque manual
+Para iterar con HMR sin reconstruir imágenes: PostgreSQL en Docker y los dos
+servidores de Vite en paralelo. No hace falta ningún script extra.
 
 ```bash
 docker run -d --name crm-postgres-dev -e POSTGRES_USER=crm -e POSTGRES_PASSWORD=crm \
-  -e POSTGRES_DB=crmdb -p 5432:5432 postgres:17-alpine
+  -e POSTGRES_DB=crmdb -p 5433:5432 postgres:17-alpine
 
-cd servidor && npm run dev
-cd cliente && npm run dev
+cd servidor && npm run dev   # http://127.0.0.1:8080 (aplica migraciones y seed)
+cd cliente && npm run dev    # http://127.0.0.1:5173
 ```
+
+`servidor/.env` sigue siendo la única fuente de credenciales: el `DATABASE_URL` de
+desarrollo ya apunta a `localhost:5433`, que es el puerto publicado arriba.
 
 ## Detalles técnicos
 

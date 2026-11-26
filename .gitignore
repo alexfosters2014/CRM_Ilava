@@ -6,11 +6,6 @@
 .env.*
 !.env.example
 
-# Entorno del Lanzador Directo (desarrollo): contiene SMTP_PASS, CORREO_CLAVE,
-# GMAIL_CLIENT_SECRET, BETTER_AUTH_SECRET y la clave de PostgreSQL en texto
-# plano. Nunca debe entrar al repositorio.
-lanzador-directo.env
-
 # Credenciales de la sesion de WhatsApp (Baileys): equivalen a la cuenta.
 .whatsapp-auth/
 
